@@ -879,7 +879,7 @@ export default function QuestionsPage() {
                 </div>
               )}
 
-              {/* Subject */}
+              {/* Desktop layout - hidden on mobile */}
               <div className={styles.cellSubject}>
                 <span className={styles.subjectBadge}>{question.subject}</span>
               </div>
@@ -973,6 +973,96 @@ export default function QuestionsPage() {
                     <DeleteOutlined />
                   </button>
                 </Popconfirm>
+              </div>
+
+              {/* Mobile card layout - visible only on mobile */}
+              <div className={styles.cardMobileHeader}>
+                <span className={styles.subjectBadge}>{question.subject}</span>
+                <span
+                  className={`${styles.masteryBadge} ${getMasteryClass(
+                    question.masteryLevel,
+                  )}`}
+                >
+                  <span className={styles.masteryDot} />
+                  {MASTERY_LABELS[question.masteryLevel] || '未知'}
+                </span>
+              </div>
+
+              <div className={styles.cardMobileContent}>
+                <div className={styles.contentText}>
+                  <MarkdownPreview content={question.content} />
+                </div>
+                {question.tags && question.tags.length > 0 && (
+                  <div className={styles.contentTags}>
+                    {question.tags.slice(0, 3).map((t) => (
+                      <span key={t.tag.id} className={styles.tagPill}>
+                        {t.tag.name}
+                      </span>
+                    ))}
+                    {question.tags.length > 3 && (
+                      <span className={styles.tagPill}>
+                        +{question.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.cardMobileMeta}>
+                <span className={styles.cellDate}>
+                  {formatDate(question.createdAt)}
+                </span>
+                <div className={styles.cellActions}>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionBtnPractice}`}
+                    title="刷题"
+                    onClick={() => handleOpenPractice(question)}
+                  >
+                    <PlayCircleOutlined />
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionBtnHistory}`}
+                    title="练习历史"
+                    onClick={() => handleOpenPracticeHistory(question)}
+                  >
+                    <HistoryOutlined />
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionBtnView}`}
+                    title="查看"
+                    onClick={() => handleView(question)}
+                  >
+                    <EyeOutlined />
+                  </button>
+                  <Link to={`/questions/${question.id}`}>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                      title="编辑"
+                    >
+                      <EditOutlined />
+                    </button>
+                  </Link>
+                  <Popconfirm
+                    title="删除题目"
+                    description="确定删除这道题目吗？此操作不可撤销。"
+                    onConfirm={() => handleDelete(question.id)}
+                    okText="删除"
+                    cancelText="取消"
+                    overlayClassName={styles.popconfirmOverlay}
+                  >
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                      title="删除"
+                    >
+                      <DeleteOutlined />
+                    </button>
+                  </Popconfirm>
+                </div>
               </div>
             </div>
           ))
