@@ -1,0 +1,124 @@
+version: "3.8"
+
+# 生产环境配置
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fixit-postgres
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_USER: fixit
+      POSTGRES_PASSWORD: fixit
+      POSTGRES_DB: fixit
+      TZ: Asia/Shanghai
+    command: postgres -c timezone=Asia/Shanghai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixit -d fixit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: fixit-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - .env
+    environment:
+      MINIO_CORS_ALLOW_ORIGIN: "*"
+      MINIO_CORS_ALLOW_METHODS: "GET,POST,PUT,DELETE,HEAD,OPTIONS"
+      MINIO_CORS_ALLOW_HEADERS: "*"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  mc:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z-cpuv1
+    container_name: fixit-mc
+    env_file:
+      - .env
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set myminio ${MINIO_ENDPOINT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      mc mb myminio/${MINIO_BUCKET} --ignore-existing;
+      mc anonymous set download myminio/${MINIO_BUCKET};
+      echo 'MinIO initialization complete';
+      sleep infinity
+      "
+
+  api:
+    build:
+      context: ../../fixit-api
+      dockerfile: ../deploy/prod/Dockerfile.api
+    container_name: fixit-api
+    # 只在内部网络暴露，不对外暴露端口
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://fixit:fixit@postgres:5432/fixit
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    # 启动前自动初始化数据库
+    command: >
+      sh -c "
+      echo '🗄️  Initializing database...';
+      echo '📦 Running database migrations...';
+      npx prisma migrate deploy || echo 'Migrations already applied';
+      echo '🌱 Creating invitation codes...';
+      node scripts/seed-prod.js || echo 'Seed already executed';
+      echo '🚀 Starting API server...';
+      node dist/src/main.js
+      "
+
+  web:
+    build:
+      context: ../../fixit-web
+      dockerfile: ../deploy/prod/Dockerfile.web
+    container_name: fixit-web
+    # 不对外暴露端口，只通过Caddy访问
+    expose:
+      - "80"
+
+  # Caddy 反向代理 - 统一入口
+  caddy:
+    image: caddy:latest
+    container_name: fixit-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - ACME_AGREE=true
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+
+volumes:
+  postgres_data:
+  minio_data:
+  caddy_data:
+  caddy_config:

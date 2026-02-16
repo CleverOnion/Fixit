@@ -1,0 +1,74 @@
+version: "3.8"
+
+# 开发环境配置
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fixit-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: fixit
+      POSTGRES_PASSWORD: fixit
+      POSTGRES_DB: fixit
+      TZ: Asia/Shanghai
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ../../fixit-api/prisma:/prisma
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixit -d fixit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: fixit-minio-dev
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+      MINIO_DEFAULT_BUCKETS: fixit-files
+    volumes:
+      - minio_dev_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # 数据库初始化服务（运行一次后自动退出）
+  db-init:
+    image: node:20-alpine
+    container_name: fixit-db-init-dev
+    volumes:
+      - ../../fixit-api:/app
+      - ../../.env:/app/.env:ro
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgresql://fixit:fixit@postgres:5432/fixit
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+      echo '📦 Installing dependencies...'
+      npm install --silent
+      echo '🗄️  Running database migrations...'
+      npx prisma migrate deploy
+      echo '🌱 Creating invitation codes...'
+      npx prisma db seed || echo 'Seed already executed'
+      echo '✅ Database initialization complete!'
+      echo ''
+      echo '🎯 Ready to start development servers:'
+      echo '  Backend: cd fixit-api && npm run start:dev'
+      echo '  Frontend: cd fixit-web && npm run dev'
+      "
+    restart: "no"
+
+volumes:
+  postgres_dev_data:
+  minio_dev_data:

@@ -1,0 +1,328 @@
+/* Practice History - Horizontal Flow */
+
+/* Modal */
+.phModal :global(.ant-modal-content) {
+  background: linear-gradient(180deg, #faf9f7 0%, #f5f1eb 100%) !important;
+  border: 1px solid #e5ddd0 !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.14) !important;
+  overflow: hidden;
+}
+
+.phModal :global(.ant-modal-header) {
+  background: transparent !important;
+  border: none !important;
+  padding: 20px 24px 0 !important;
+}
+
+.phModal :global(.ant-modal-title) {
+  font-family: 'Playfair Display', Georgia, serif !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #2c2823 !important;
+  letter-spacing: 0.01em;
+}
+
+.phModal :global(.ant-modal-body) {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.phModal :global(.ant-modal-close-x) {
+  color: #9c9488;
+  font-size: 18px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+/* Header */
+.phHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 16px;
+  border-bottom: 1px solid #e5ddd0;
+}
+
+.phTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.phIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #d4c9b8 0%, #c9bea8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(180, 155, 120, 0.2);
+}
+
+.phSubject {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  background: #ebe7df;
+  border-radius: 4px;
+  color: #6e6658;
+  letter-spacing: 0.08em;
+}
+
+/* Stats Bar */
+.phStats {
+  display: flex;
+  gap: 0;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid #e5ddd0;
+}
+
+.phStat {
+  flex: 1;
+  text-align: center;
+  padding: 8px 16px;
+  position: relative;
+}
+
+.phStat::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: #e5ddd0;
+}
+
+.phStat:last-child::after {
+  display: none;
+}
+
+.phStatNum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 400;
+  color: #2c2823;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.phStatLabel {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9c9488;
+}
+
+/* Horizontal Flow Container */
+.phFlow {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phFlowHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.phFlowTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 12px;
+  color: #6e6658;
+  letter-spacing: 0.05em;
+}
+
+.phFlowCount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  background: #d4c9b8;
+  border-radius: 3px;
+  color: #6e6658;
+}
+
+/* Horizontal Cards */
+.phCards {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px 0 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #d4c9b8 transparent;
+  cursor: grab;
+  user-select: none;
+}
+
+.phCards:active {
+  cursor: grabbing;
+}
+
+.phCards::-webkit-scrollbar {
+  height: 4px;
+}
+
+.phCards::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phCards::-webkit-scrollbar-thumb {
+  background: #d4c9b8;
+  border-radius: 2px;
+}
+
+/* Card */
+.phCard {
+  flex-shrink: 0;
+  width: 160px;
+  background: #fff;
+  border: 1px solid #e5ddd0;
+  border-radius: 10px;
+  padding: 14px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.phCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transition: all 0.25s;
+}
+
+.phCard:nth-child(3n+1)::before { background: linear-gradient(90deg, #dc5050, #c94040); }
+.phCard:nth-child(3n+2)::before { background: linear-gradient(90deg, #d4942a, #c07820); }
+.phCard:nth-child(3n)::before { background: linear-gradient(90deg, #3c8c64, #2e7850); }
+
+.phCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  border-color: #d4c9b8;
+}
+
+/* Card Status */
+.phCardStatus {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phCardStatusForgot { color: #dc5050; }
+.phCardStatusFuzzy { color: #d4942a; }
+.phCardStatusMastered { color: #3c8c64; }
+
+/* Card Time */
+.phCardTime {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #9c9488;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+
+/* Card Note */
+.phCardNote {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 10px;
+  color: #6e6658;
+  font-style: italic;
+  padding: 8px;
+  background: #f8f6f2;
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+/* Empty */
+.phEmpty {
+  text-align: center;
+  padding: 48px 24px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5ddd0;
+}
+
+.phEmptyIcon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ebe7df 0%, #d4c9b8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #9c9488;
+}
+
+.phEmptyTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 14px;
+  color: #2c2823;
+  margin-bottom: 4px;
+}
+
+.phEmptyDesc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #9c9488;
+}
+
+/* Loading */
+.phLoading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.phLoading::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5ddd0;
+  border-top-color: #9c9488;
+  border-radius: 50%;
+  animation: phSpin 0.6s linear infinite;
+}
+
+@keyframes phSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Load More */
+.phMore {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.phMore button {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #6e6658;
+  padding: 8px 24px;
+  border: 1px solid #e5ddd0;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.phMore button:hover {
+  background: #f8f6f2;
+  border-color: #d4c9b8;
+}

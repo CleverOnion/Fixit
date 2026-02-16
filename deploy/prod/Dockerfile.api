@@ -1,0 +1,59 @@
+# 后端 API 构建配置
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 配置 npm 国内镜像
+RUN npm config set registry https://registry.npmmirror.com
+
+# 安装所有依赖（包括 devDependencies，构建需要类型）
+COPY package*.json ./
+COPY package-lock.json* ./
+RUN npm ci
+
+# 复制源代码
+COPY prisma ./prisma/
+COPY tsconfig*.json ./
+COPY src ./src/
+COPY scripts ./scripts/
+
+# 生成 Prisma 客户端
+RUN npx prisma generate
+
+# 构建应用
+RUN npm run build
+
+# 生产阶段
+FROM node:20 AS production
+
+WORKDIR /app
+
+# 复制 package 文件
+COPY package*.json ./
+COPY package-lock.json* ./
+
+# 配置 npm 并安装生产依赖
+RUN npm config set registry https://registry.npmmirror.com && npm ci --only=production
+
+# 单独安装运行时所需的开发工具
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g prisma@5.22.0 ts-node dotenv && \
+    npm install dotenv
+
+# 复制构建产物、Prisma 文件和 seed 脚本
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
+
+# 复制 Prisma 客户端（从 builder）
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# 重新生成 Prisma 客户端以匹配当前平台
+RUN npx prisma generate
+
+# 暴露端口
+EXPOSE 3000
+
+# 启动应用
+CMD ["node", "dist/src/main.js"]

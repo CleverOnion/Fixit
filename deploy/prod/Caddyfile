@@ -1,0 +1,22 @@
+# 前端 + API 路由配置 - HTTP模式
+# fixit.cleveronion.cn - 主域名（前端 + API）
+:80 {
+    # API 代理到后端，去掉 /api 前缀
+    handle /api/* {
+        rewrite ^/api/(.*) /{1}
+        reverse_proxy api:3000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # 前端静态文件代理到nginx容器
+    handle {
+        reverse_proxy web:80 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+}

@@ -1,0 +1,26 @@
+# 前端 + API 路由配置 - HTTPS模式（带自动证书）
+# fixit.cleveronion.cn - 主域名（前端 + API）
+fixit.cleveronion.cn {
+    # 自动HTTPS，Caddy会自动获取和续签Let's Encrypt证书
+    encode gzip zstd
+
+    # API 代理到后端，去掉 /api 前缀
+    handle /api/* {
+        rewrite ^/api/(.*) /{1}
+        reverse_proxy api:3000
+    }
+
+    # 前端静态文件代理到nginx容器
+    handle {
+        reverse_proxy web:80
+    }
+}
+
+# fixit-api.cleveronion.cn - API专用域名
+fixit-api.cleveronion.cn {
+    # 自动HTTPS
+    encode gzip zstd
+
+    # 反向代理到API服务
+    reverse_proxy api:3000
+}

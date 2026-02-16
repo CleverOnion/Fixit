@@ -1,0 +1,53 @@
+/* components/Layout/Layout.module.css */
+/* 新版布局样式 - 静谧之境深色主题 */
+
+.layout {
+  min-height: 100vh;
+  background: var(--fi-bg-root, #0d0d0e);
+}
+
+.main {
+  padding-top: 56px;
+  min-height: 100vh;
+}
+
+.pageContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 1024px) {
+  .pageContainer {
+    padding: 20px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding-top: 56px;
+  }
+
+  .pageContainer {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 12px;
+  }
+}

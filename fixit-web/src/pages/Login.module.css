@@ -1,0 +1,359 @@
+/* pages/Login.module.css */
+/* Login Page - 静谧之境深色主题 */
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fi-bg-root, #0d0d0e);
+  overflow: hidden;
+}
+
+/* Background glow effect */
+.glowOrb {
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 0%,
+    rgba(255, 107, 107, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.glowOrb2 {
+  position: absolute;
+  bottom: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    ellipse 60% 40% at 50% 100%,
+    rgba(99, 102, 241, 0.05) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* ===== Container ===== */
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 24px;
+}
+
+/* ===== Logo Section ===== */
+.logoSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+}
+
+.logoIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.logoText {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--fi-text-primary, #f5f5f7);
+  letter-spacing: -0.02em;
+}
+
+/* ===== Header ===== */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-family: var(--fi-font-body, 'Outfit', -apple-system, sans-serif);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--fi-text-primary, #f5f5f7);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-family: var(--fi-font-body, 'Outfit', -apple-system, sans-serif);
+  font-size: 15px;
+  color: var(--fi-text-secondary, #a1a1a6);
+  margin: 0;
+}
+
+/* ===== Form ===== */
+.form {
+  margin-bottom: 24px;
+}
+
+/* ===== Input Group ===== */
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fi-text-secondary, #a1a1a6);
+  margin-bottom: 8px;
+}
+
+.inputWrapper {
+  position: relative;
+  height: 48px;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fi-text-placeholder, #52525b);
+  font-size: 16px;
+  transition: color var(--fi-transition-fast);
+  z-index: 1;
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  padding: 0 14px 0 44px;
+  background: var(--fi-bg-surface, #232326);
+  border: 1px solid var(--fi-border-subtle, #2a2a2d);
+  border-radius: var(--fi-radius-md, 10px);
+  color: var(--fi-text-primary, #f5f5f7);
+  font-family: var(--fi-font-body, 'Outfit', -apple-system, sans-serif);
+  font-size: 15px;
+  outline: none;
+  transition: all var(--fi-transition-fast);
+}
+
+.input::placeholder {
+  color: var(--fi-text-placeholder, #52525b);
+}
+
+.input:hover {
+  border-color: var(--fi-border-default, #36363a);
+}
+
+.input:focus {
+  border-color: var(--fi-brand, #ff6b6b);
+  background: var(--fi-bg-card, #1a1a1b);
+  box-shadow: 0 0 0 4px var(--fi-brand-dim, rgba(255, 107, 107, 0.12));
+}
+
+.input:focus ~ .inputIcon {
+  color: var(--fi-brand, #ff6b6b);
+}
+
+/* ===== Forgot Password ===== */
+.forgotPassword {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.forgotLink {
+  font-size: 13px;
+  color: var(--fi-text-secondary, #a1a1a6);
+  text-decoration: none;
+  transition: color var(--fi-transition-fast);
+}
+
+.forgotLink:hover {
+  color: var(--fi-text-primary, #f5f5f7);
+}
+
+/* ===== Submit Button ===== */
+.submitBtn {
+  width: 100%;
+  height: 48px;
+  background: var(--fi-gradient-brand, linear-gradient(135deg, #ff6b6b 0%, #e54d2e 100%));
+  border: none;
+  border-radius: var(--fi-radius-md, 10px);
+  color: white;
+  font-family: var(--fi-font-body, 'Outfit', -apple-system, sans-serif);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--fi-transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--fi-shadow-brand, rgba(255, 107, 107, 0.25));
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Footer ===== */
+.footer {
+  text-align: center;
+  font-family: var(--fi-font-body, 'Outfit', -apple-system, sans-serif);
+  font-size: 14px;
+  color: var(--fi-text-secondary, #a1a1a6);
+}
+
+.link {
+  color: var(--fi-brand, #ff6b6b);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all var(--fi-transition-fast);
+  position: relative;
+}
+
+.link:hover {
+  color: var(--fi-brand-hover, #ff8585);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--fi-brand, #ff6b6b);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--fi-transition-fast);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.logoSection {
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+.header {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.form {
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.footer {
+  animation: fadeIn 0.6s ease-out 0.5s both;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .logoText {
+    font-size: 24px;
+  }
+
+  .input {
+    font-size: 16px;
+  }
+}
+
+/* ===== Focus Styles for Accessibility ===== */
+.input:focus-visible {
+  outline: 2px solid var(--fi-brand, #ff6b6b);
+  outline-offset: 2px;
+}
+
+.submitBtn:focus-visible {
+  outline: 2px solid var(--fi-brand, #ff6b6b);
+  outline-offset: 2px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--fi-brand, #ff6b6b);
+  outline-offset: 2px;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

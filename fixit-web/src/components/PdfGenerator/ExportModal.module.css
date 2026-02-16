@@ -1,0 +1,205 @@
+/* components/PdfGenerator/ExportModal.module.css */
+
+/* Modal */
+.exportModal :global(.ant-modal-header) {
+  background: var(--fi-bg-card, #1a1a1b);
+  border-bottom: 1px solid var(--fi-border-subtle, #2a2a2d);
+  padding: 16px 24px;
+}
+
+.exportModal :global(.ant-modal-title) {
+  color: var(--fi-text-primary, #f5f5f7);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.exportModal :global(.ant-modal-body) {
+  background: var(--fi-bg-card, #1a1a1b);
+  padding: 20px 24px;
+}
+
+.exportModal :global(.ant-modal-close-x) {
+  color: var(--fi-text-secondary, #a1a1a6);
+}
+
+.exportModal :global(.ant-divider) {
+  border-color: var(--fi-border-subtle, #2a2a2d);
+}
+
+/* Modal Title */
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleIcon {
+  font-size: 20px;
+  color: var(--fi-brand, #ff6b6b);
+}
+
+/* Export Info */
+.exportInfo {
+  margin-bottom: 0;
+}
+
+.infoCard {
+  display: flex;
+  gap: 24px;
+  padding: 16px;
+  background: var(--fi-bg-surface, #232326);
+  border-radius: var(--fi-radius-md, 10px);
+  border: 1px solid var(--fi-border-subtle, #2a2a2d);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: var(--fi-text-tertiary, #6b6b70);
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fi-text-primary, #f5f5f7);
+}
+
+/* Options Section */
+.optionsSection {
+  padding: 8px 0;
+}
+
+.optionsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fi-text-primary, #f5f5f7);
+  margin: 0 0 16px 0;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optionItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--fi-bg-surface, #232326);
+  border-radius: var(--fi-radius-sm, 6px);
+  border: 1px solid var(--fi-border-subtle, #2a2a2d);
+}
+
+.optionItem:hover {
+  border-color: var(--fi-border-default, #36363a);
+}
+
+.optionLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fi-text-primary, #f5f5f7);
+}
+
+.optionHint {
+  font-size: 12px;
+  color: var(--fi-text-tertiary, #6b6b70);
+  margin-left: 24px;
+}
+
+/* Progress Section */
+.progressSection {
+  padding: 20px 0;
+}
+
+.progressText {
+  text-align: center;
+  font-size: 13px;
+  color: var(--fi-text-secondary, #a1a1a6);
+  margin: 12px 0 0 0;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.footerTips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fi-text-secondary, #a1a1a6);
+}
+
+.tipIcon {
+  color: var(--fi-success, #10b981);
+}
+
+.exportButton {
+  background: var(--fi-gradient-brand, linear-gradient(135deg, #ff6b6b 0%, #e54d2e 100%)) !important;
+  border: none !important;
+  height: 42px !important;
+  padding: 0 24px !important;
+  border-radius: var(--fi-radius-md, 10px) !important;
+  font-weight: 600 !important;
+}
+
+.exportButton:hover {
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* Checkbox override */
+.optionItem :global(.ant-checkbox-wrapper) {
+  margin-right: 8px;
+}
+
+.optionItem :global(.ant-checkbox) {
+  background: transparent;
+}
+
+.optionItem :global(.ant-checkbox-inner) {
+  background: var(--fi-bg-deep, #111112);
+  border-color: var(--fi-border-default, #36363a);
+}
+
+.optionItem :global(.ant-checkbox-checked .ant-checkbox-inner) {
+  background: var(--fi-brand, #ff6b6b);
+  border-color: var(--fi-brand, #ff6b6b);
+}
+
+.optionItem :global(.ant-checkbox-checked:after) {
+  border-color: var(--fi-brand, #ff6b6b);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .infoCard {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .footerTips {
+    justify-content: center;
+  }
+
+  .exportButton {
+    width: 100%;
+  }
+}

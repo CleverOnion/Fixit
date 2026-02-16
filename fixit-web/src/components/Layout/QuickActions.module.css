@@ -1,0 +1,139 @@
+/* components/Layout/QuickActions.module.css */
+/* 悬浮快捷操作按钮样式 - 静谧之境深色主题 */
+
+.container {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 展开的 Actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: all var(--fi-transition-base);
+}
+
+.expanded .actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--fi-bg-card, #1a1a1b);
+  border: 1px solid var(--fi-border-subtle, #2a2a2d);
+  border-radius: var(--fi-radius-md, 10px);
+  box-shadow: var(--fi-shadow-md, 0 4px 16px rgba(0, 0, 0, 0.4));
+  text-decoration: none;
+  color: var(--fi-text-primary, #f5f5f7);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--fi-transition-fast);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--fi-bg-hover, #2a2a2d);
+  border-color: var(--fi-brand, #ff6b6b);
+  color: var(--fi-brand, #ff6b6b);
+  transform: translateX(-4px);
+  box-shadow: var(--fi-shadow-lg, 0 8px 32px rgba(0, 0, 0, 0.5));
+}
+
+.actionIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.actionLabel {
+  white-space: nowrap;
+}
+
+/* 主按钮 */
+.mainBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--fi-gradient-brand, linear-gradient(135deg, #ff6b6b 0%, #e54d2e 100%));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.35);
+  transition: all var(--fi-transition-base);
+}
+
+.mainBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(255, 107, 107, 0.45);
+  animation: btnPulse 2s infinite;
+}
+
+.mainBtn:active {
+  transform: scale(0.96);
+}
+
+@keyframes btnPulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.35), 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.35), 0 0 0 8px rgba(255, 107, 107, 0);
+  }
+}
+
+.mainIcon {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.closeIcon {
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  transform: rotate(45deg);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .container {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .mainBtn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .action {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .actionLabel {
+    display: none;
+  }
+
+  .action {
+    padding: 10px;
+    border-radius: 50%;
+  }
+}

@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  nickname      String
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  questions     Question[]
+  reviewLogs    ReviewLog[]
+  tags          Tag[]
+  practiceSessions PracticeSession[]
+  practiceRecords PracticeRecord[]
+
+  @@map("users")
+}
+
+// 题目表
+model Question {
+  id            String    @id @default(uuid())
+  content       String    @db.Text      // 题目内容 (Markdown)
+  answer        String    @db.Text      // 答案 (Markdown)
+  analysis      String?   @db.Text      // 解析 (Markdown)
+  images        String[]                // 图片 URL 列表
+
+  // 元数据
+  subject       String                  // 学科
+  sourcePath    Json?                   // 来源路径 (层级结构)
+  masteryLevel  Int       @default(0)   // 掌握程度 0-5
+  nextReviewAt  DateTime?               // 下次复习时间
+  lastReviewedAt DateTime?
+  practiceCount Int       @default(0)   // 练习次数（所有刷题记录）
+  totalTimeSpent Int      @default(0)   // 总练习时长（秒）
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tags          QuestionTag[]
+  reviewLogs    ReviewLog[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId, subject])
+  @@index([userId, masteryLevel])
+  @@index([nextReviewAt])
+  @@index([userId, practiceCount])
+  @@map("questions")
+}
+
+// 标签表
+model Tag {
+  id            String    @id @default(uuid())
+  name          String
+  type          TagType
+  category      String                 // 标签类别
+  color         String?
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  questions     QuestionTag[]
+
+  createdAt     DateTime  @default(now())
+
+  @@unique([userId, name, type])
+  @@map("tags")
+}
+
+// 题目-标签关联表
+model QuestionTag {
+  id            String    @id @default(uuid())
+  questionId    String
+  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tagId         String
+  tag           Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, tagId])
+  @@map("question_tags")
+}
+
+// 复习记录表
+model ReviewLog {
+  id            String    @id @default(uuid())
+  questionId    String
+  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  status        ReviewStatus
+  note          String?   @db.Text      // 复习心得
+  duration      Int       @default(0)   // 本次练习耗时（秒）
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+
+  @@index([questionId, createdAt])
+  @@index([userId, createdAt])
+  @@map("review_logs")
+}
+
+enum TagType {
+  SYSTEM
+  CUSTOM
+}
+
+enum ReviewStatus {
+  FORGOTTEN   // 没做对
+  FUZZY       // 模糊
+  MASTERED    // 掌握
+}
+
+// 练习轮次状态
+enum PracticeSessionStatus {
+  ACTIVE      // 进行中
+  COMPLETED   // 已完成
+  TOMORROW    // 明日再来
+}
+
+// 练习记录表（记录每日练习情况）
+model PracticeRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())  // 记录日期（当天开始时间）
+  questionIds String[]                  // 本日练习的题目ID列表
+  count       Int      @default(0)      // 练习数量
+  completed   Boolean  @default(false)  // 是否完成每日任务
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@map("practice_records")
+}
+
+// 练习轮次表
+model PracticeSession {
+  id            String              @id @default(uuid())
+
+  userId        String
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 移除 mode 字段，统一使用艾宾浩斯复习模式
+  dailyLimit    Int                 @default(20)  // 每日任务量
+
+  // 题目列表（JSON 数组存储题目ID）
+  questionIds   String[]
+
+  currentIndex  Int                 @default(0)   // 当前题目索引
+
+  status        PracticeSessionStatus @default(ACTIVE)
+
+  startedAt     DateTime            @default(now())
+  completedAt   DateTime?
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([userId, status])
+  @@map("practice_sessions")
+}
+
+// 邀请码表
+model InvitationCode {
+  id          String    @id @default(uuid())
+  code        String    @unique           // 邀请码（唯一）
+  createdBy   String?                   // 创建者用户ID（可选，允许系统默认创建）
+  usedBy      String?                   // 使用者用户ID
+  usedAt      DateTime?                 // 使用时间
+  createdAt   DateTime  @default(now())
+
+  @@index([code])
+  @@map("invitation_codes")
+}

@@ -1,0 +1,23 @@
+.page {
+  padding: 24px;
+  min-height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.content {
+  background: var(--ant-colorBgContainer);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    background: #0d0d0e;
+  }
+}

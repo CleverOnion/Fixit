@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+
+# Build outputs
+fixit-api/dist
+fixit-web/dist
+
+# Test outputs
+fixit-web/test-results
+fixit-web/playwright-report
+
+# IDE
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Playwright MCP artifacts
+.playwright-mcp
+
+# Windows artifacts
+nul
+
+# Playwright leftover
+fixitpages.spec.ts-web
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Deployment configs (sensitive)
+deploy/prod/.env
+deploy/dev/.env
+fixit-api/.env
+
+# SSL certificates and keys
+*.crt
+*.key
+*.pem
+deploy/prod/ssl/
+deploy/prod/certbot/www/
