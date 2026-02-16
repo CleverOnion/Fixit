@@ -85,7 +85,7 @@ cd ../fixit-api && npm install
 cp .env.example .env
 # 编辑 .env 文件（至少配置 OPENAI_API_KEY）
 
-# 5. 初始化数据库
+# 5. 初始化数据库（仅首次需要）
 cd fixit-api
 npx prisma migrate dev
 npx prisma seed
@@ -149,9 +149,14 @@ nano .env  # 修改敏感配置
 # 3. 启动所有服务
 docker-compose up -d
 
-# 4. 查看服务状态
+# ✓ 数据库自动初始化（migrations + seed）
+# ✓ 服务自动启动
+```
+
+查看服务状态：
+```bash
 docker-compose ps
-docker-compose logs -f
+docker-compose logs -f api
 ```
 
 ### 访问方式
