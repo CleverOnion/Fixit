@@ -149,9 +149,13 @@ nano .env  # 修改敏感配置
 # 3. 启动所有服务
 docker-compose up -d
 
-# ✓ 数据库自动初始化（migrations + seed）
+# ✓ 数据库自动初始化（每次启动都会检查并自动处理）
 # ✓ 服务自动启动
 ```
+
+**说明**：每次启动API容器时都会自动执行：
+- `npx prisma migrate deploy` - 应用未执行的迁移（幂等）
+- `node scripts/seed-prod.js` - 创建初始邀请码（已存在则跳过）
 
 查看服务状态：
 ```bash
