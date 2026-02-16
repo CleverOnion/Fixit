@@ -288,3 +288,18 @@ body {
   background: var(--fi-bg-surface);
   font-weight: 600;
 }
+
+/* Questions page mobile full width fix */
+@media (max-width: 768px) {
+  /* Force full width for questions page container */
+  body > div > div > main > div {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Force all children to be full width */
+  body > div > div > main > div * {
+    max-width: 100% !important;
+  }
+}

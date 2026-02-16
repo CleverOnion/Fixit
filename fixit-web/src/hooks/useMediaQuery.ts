@@ -14,9 +14,12 @@ import { breakpoints } from '../utils/breakpoints'
  */
 export function useMediaQuery(breakpointKey: keyof typeof breakpoints): boolean {
   const [matches, setMatches] = useState(false)
+  const breakpoint = breakpoints[breakpointKey]
 
   useEffect(() => {
-    const query = `(min-width: ${breakpoints[breakpointKey]})`
+    if (typeof window === 'undefined') return
+
+    const query = `(min-width: ${breakpoint})`
     const mediaQuery = window.matchMedia(query)
 
     // Set initial state
@@ -26,7 +29,7 @@ export function useMediaQuery(breakpointKey: keyof typeof breakpoints): boolean 
     mediaQuery.addEventListener('change', handler)
 
     return () => mediaQuery.removeEventListener('change', handler)
-  }, [breakpointKey])
+  }, [breakpoint])
 
   return matches
 }

@@ -43,12 +43,14 @@
   }
 
   .pageContainer {
-    padding: 16px;
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
 }
 
 @media (max-width: 480px) {
   .pageContainer {
-    padding: 12px;
+    padding: 0 !important;
   }
 }

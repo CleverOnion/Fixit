@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Popconfirm, message, Modal, Empty, Button, Checkbox, Upload, Switch, Slider, Row, Col } from 'antd';
 import {
@@ -24,6 +24,7 @@ import { tagApi, Tag } from '../../api/tag';
 import { useUserStore } from '../../stores/userStore';
 import { MarkdownPreview } from '../../components/MarkdownEditor';
 import { ExportModal } from '../../components/PdfGenerator/ExportModal';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import styles from './Questions.module.css';
 import ph from './PracticeHistory.module.css';
 
@@ -247,6 +248,7 @@ function SkeletonRows({ count }: SkeletonRowsProps) {
 export default function QuestionsPage() {
   const navigate = useNavigate();
   const isLoggedIn = useUserStore((state) => state.isLoggedIn);
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [total, setTotal] = useState(0);
@@ -656,7 +658,7 @@ export default function QuestionsPage() {
   );
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={isMobile ? { maxWidth: '100vw', width: '100vw', margin: 0, padding: 0 } : {}}>
       {/* Page Header */}
       <div className={styles.pageHeader}>
         <div className={styles.headerLeft}>
@@ -735,7 +737,7 @@ export default function QuestionsPage() {
       </div>
 
       {/* Filter Panel */}
-      <div className={styles.filterPanel}>
+      <div className={styles.filterPanel} style={isMobile ? { width: '100%', maxWidth: '100vw', margin: 0, borderRadius: 0, borderLeft: 'none', borderRight: 'none', padding: '16px' } : {}}>
         <div className={styles.filterRow}>
           <span className={styles.filterLabel}>学科</span>
           <div className={styles.subjectChips}>
@@ -824,7 +826,7 @@ export default function QuestionsPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className={styles.statsBar}>
+      <div className={styles.statsBar} style={isMobile ? { width: '100%', maxWidth: '100vw', padding: '12px 16px' } : {}}>
         <div className={styles.statsLeft}>
           <span className={styles.statsCount}>
             共 <strong>{total}</strong> 道题目
@@ -834,9 +836,12 @@ export default function QuestionsPage() {
       </div>
 
       {/* Table */}
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} style={isMobile ? { width: '100%', maxWidth: '100vw', padding: 0, margin: 0, background: 'transparent', border: 'none', borderRadius: 0 } : {}}>
         {/* Table Header */}
-        <div className={`${styles.tableHeader} ${selectMode ? styles.withSelect : ''}`}>
+        <div
+          className={`${styles.tableHeader} ${selectMode ? styles.withSelect : ''}`}
+          style={isMobile ? { display: 'none' } : {}}
+        >
           {selectMode && (
             <div className={`${styles.tableHeaderCell} ${styles.selectCell}`}>
               <Checkbox
@@ -859,124 +864,136 @@ export default function QuestionsPage() {
 
         {/* Table Body */}
         {loading ? (
-          <SkeletonRows count={5} />
+          <div style={isMobile ? { display: 'none' } : {}}>
+            <SkeletonRows count={5} />
+          </div>
         ) : questions.length > 0 ? (
           questions.map((question, index) => (
-            <div
-              key={question.id}
-              className={`${styles.tableRow} ${styles.fadeIn} ${
-                selectedIds.has(question.id) ? styles.rowSelected : ''
-              } ${selectMode ? styles.withSelect : ''}`}
-              style={{ animationDelay: `${index * 0.04}s` }}
-            >
-              {/* Select */}
-              {selectMode && (
-                <div className={styles.cellSelect}>
-                  <Checkbox
-                    checked={selectedIds.has(question.id)}
-                    onChange={() => handleToggleSelect(question.id)}
-                  />
-                </div>
-              )}
-
-              {/* Desktop layout - hidden on mobile */}
-              <div className={styles.cellSubject}>
-                <span className={styles.subjectBadge}>{question.subject}</span>
-              </div>
-
-              {/* Content */}
-              <div className={styles.cellContent}>
-                <div className={styles.contentText}>
-                  <MarkdownPreview content={question.content} />
-                </div>
-                {question.tags && question.tags.length > 0 && (
-                  <div className={styles.contentTags}>
-                    {question.tags.slice(0, 3).map((t) => (
-                      <span key={t.tag.id} className={styles.tagPill}>
-                        {t.tag.name}
-                      </span>
-                    ))}
-                    {question.tags.length > 3 && (
-                      <span className={styles.tagPill}>
-                        +{question.tags.length - 3}
-                      </span>
-                    )}
+            <Fragment key={question.id}>
+              {/* Desktop table row - hidden on mobile */}
+              <div
+                key={`desktop-${question.id}`}
+                className={`${styles.tableRow} ${styles.fadeIn} ${
+                  selectedIds.has(question.id) ? styles.rowSelected : ''
+                } ${selectMode ? styles.withSelect : ''}`}
+                style={{
+                  animationDelay: `${index * 0.04}s`,
+                  display: isMobile ? 'none' : undefined
+                }}
+              >
+                {/* Select */}
+                {selectMode && (
+                  <div className={styles.cellSelect}>
+                    <Checkbox
+                      checked={selectedIds.has(question.id)}
+                      onChange={() => handleToggleSelect(question.id)}
+                    />
                   </div>
                 )}
-              </div>
 
-              {/* Mastery */}
-              <div className={styles.cellMastery}>
-                <span
-                  className={`${styles.masteryBadge} ${getMasteryClass(
-                    question.masteryLevel,
-                  )}`}
-                >
-                  <span className={styles.masteryDot} />
-                  {MASTERY_LABELS[question.masteryLevel] || '未知'}
-                </span>
-              </div>
+                {/* Desktop layout - hidden on mobile */}
+                <div className={styles.cellSubject}>
+                  <span className={styles.subjectBadge}>{question.subject}</span>
+                </div>
 
-              {/* Date */}
-              <div className={styles.cellDate}>
-                {formatDate(question.createdAt)}
-              </div>
+                {/* Content */}
+                <div className={styles.cellContent}>
+                  <div className={styles.contentText}>
+                    <MarkdownPreview content={question.content} />
+                  </div>
+                  {question.tags && question.tags.length > 0 && (
+                    <div className={styles.contentTags}>
+                      {question.tags.slice(0, 3).map((t) => (
+                        <span key={t.tag.id} className={styles.tagPill}>
+                          {t.tag.name}
+                        </span>
+                      ))}
+                      {question.tags.length > 3 && (
+                        <span className={styles.tagPill}>
+                          +{question.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-              {/* Actions */}
-              <div className={styles.cellActions}>
-                <button
-                  type="button"
-                  className={`${styles.actionBtn} ${styles.actionBtnPractice}`}
-                  title="刷题"
-                  onClick={() => handleOpenPractice(question)}
-                >
-                  <PlayCircleOutlined />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.actionBtn} ${styles.actionBtnHistory}`}
-                  title="练习历史"
-                  onClick={() => handleOpenPracticeHistory(question)}
-                >
-                  <HistoryOutlined />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.actionBtn} ${styles.actionBtnView}`}
-                  title="查看"
-                  onClick={() => handleView(question)}
-                >
-                  <EyeOutlined />
-                </button>
-                <Link to={`/questions/${question.id}`}>
+                {/* Mastery */}
+                <div className={styles.cellMastery}>
+                  <span
+                    className={`${styles.masteryBadge} ${getMasteryClass(
+                      question.masteryLevel,
+                    )}`}
+                  >
+                    <span className={styles.masteryDot} />
+                    {MASTERY_LABELS[question.masteryLevel] || '未知'}
+                  </span>
+                </div>
+
+                {/* Date */}
+                <div className={styles.cellDate}>
+                  {formatDate(question.createdAt)}
+                </div>
+
+                {/* Actions */}
+                <div className={styles.cellActions}>
                   <button
                     type="button"
-                    className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
-                    title="编辑"
+                    className={`${styles.actionBtn} ${styles.actionBtnPractice}`}
+                    title="刷题"
+                    onClick={() => handleOpenPractice(question)}
                   >
-                    <EditOutlined />
+                    <PlayCircleOutlined />
                   </button>
-                </Link>
-                <Popconfirm
-                  title="删除题目"
-                  description="确定删除这道题目吗？此操作不可撤销。"
-                  onConfirm={() => handleDelete(question.id)}
-                  okText="删除"
-                  cancelText="取消"
-                  overlayClassName={styles.popconfirmOverlay}
-                >
                   <button
                     type="button"
-                    className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                    title="删除"
+                    className={`${styles.actionBtn} ${styles.actionBtnHistory}`}
+                    title="练习历史"
+                    onClick={() => handleOpenPracticeHistory(question)}
                   >
-                    <DeleteOutlined />
+                    <HistoryOutlined />
                   </button>
-                </Popconfirm>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionBtnView}`}
+                    title="查看"
+                    onClick={() => handleView(question)}
+                  >
+                    <EyeOutlined />
+                  </button>
+                  <Link to={`/questions/${question.id}`}>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                      title="编辑"
+                    >
+                      <EditOutlined />
+                    </button>
+                  </Link>
+                  <Popconfirm
+                    title="删除题目"
+                    description="确定删除这道题目吗？此操作不可撤销。"
+                    onConfirm={() => handleDelete(question.id)}
+                    okText="删除"
+                    cancelText="取消"
+                    overlayClassName={styles.popconfirmOverlay}
+                  >
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                      title="删除"
+                    >
+                      <DeleteOutlined />
+                    </button>
+                  </Popconfirm>
+                </div>
               </div>
 
               {/* Mobile card layout - visible only on mobile */}
-              <div className={styles.mobileCard}>
+              <div
+                key={`mobile-${question.id}`}
+                className={styles.mobileCard}
+                style={isMobile ? { display: 'flex' } : { display: 'none' }}
+              >
                 <div className={styles.mobileCardHeader}>
                   <span className={styles.mobileSubject}>{question.subject}</span>
                   <span className={styles.mobileMastery}>
@@ -1014,20 +1031,18 @@ export default function QuestionsPage() {
                       <HistoryOutlined />
                       <span>历史</span>
                     </button>
-                    <Link to={`/questions/${question.id}`} className={styles.mobileActionBtnLink}>
-                      <button
-                        type="button"
-                        className={styles.mobileActionBtn}
-                        onClick={() => {}}
-                      >
-                        <EditOutlined />
-                        <span>编辑</span>
-                      </button>
+                    <Link
+                      to={`/questions/${question.id}`}
+                      className={styles.mobileActionBtn}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textDecoration: 'none' }}
+                    >
+                      <EditOutlined />
+                      <span>编辑</span>
                     </Link>
                   </div>
                 </div>
               </div>
-            </div>
+            </Fragment>
           ))
         ) : (
           <div className={styles.emptyState}>
