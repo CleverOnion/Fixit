@@ -125,7 +125,7 @@ function Heatmap({ data }: { data: HeatmapData[] }) {
     });
 
     monthMap.forEach((total, monthKey) => {
-      const [year, month] = monthKey.split('-');
+      const [, month] = monthKey.split('-');
       monthlyStats.push({
         month: `${parseInt(month)}月`,
         total,

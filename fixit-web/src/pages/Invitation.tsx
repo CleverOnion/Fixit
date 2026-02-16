@@ -21,7 +21,6 @@ const copyToClipboard = (code: string) => {
 export default function InvitationPage() {
   const [loading, setLoading] = useState(false);
   const [invitations, setInvitations] = useState<InvitationCode[]>([]);
-  const isMobile = window.innerWidth < 768;
 
   const fetchInvitations = async () => {
     setLoading(true);
