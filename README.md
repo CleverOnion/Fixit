@@ -85,7 +85,7 @@ cd ../fixit-api && npm install
 cp .env.example .env
 # 编辑 .env 文件（至少配置 OPENAI_API_KEY）
 
-# 5. 初始化数据库（可重复执行）
+# 5. （首次使用）初始化数据库
 cd fixit-api
 npx prisma migrate dev
 npx prisma seed
@@ -100,9 +100,7 @@ npm run dev
 
 访问 http://localhost:5173 开始使用！
 
-**说明**：
-- `migrate dev` 和 `seed` 命令都是幂等的，可重复执行
-- 已有数据会自动跳过，不会重复创建
+**说明**：步骤5仅在首次设置时需要，后续启动直接执行步骤6-7即可。
 
 ---
 
