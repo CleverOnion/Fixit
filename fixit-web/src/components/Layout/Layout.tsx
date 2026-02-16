@@ -4,6 +4,8 @@
 import { ReactNode } from 'react';
 import { TopNav } from './TopNav';
 import { QuickActions } from './QuickActions';
+import { MobileTabBar } from './MobileTabBar';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import styles from './Layout.module.css';
 
 interface LayoutProps {
@@ -12,6 +14,8 @@ interface LayoutProps {
 }
 
 export function Layout({ children, todayCount = 0 }: LayoutProps) {
+  const isMobile = useIsMobile();
+
   return (
     <div className={styles.layout}>
       <TopNav />
@@ -20,7 +24,8 @@ export function Layout({ children, todayCount = 0 }: LayoutProps) {
           {children}
         </div>
       </main>
-      <QuickActions todayCount={todayCount} />
+      <QuickActions todayCount={todayCount} isMobile={isMobile} />
+      {isMobile && <MobileTabBar />}
     </div>
   );
 }

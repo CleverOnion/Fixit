@@ -8,6 +8,7 @@ import styles from './QuickActions.module.css';
 
 interface QuickActionsProps {
   todayCount?: number;
+  isMobile?: boolean;
 }
 
 const actions = [
@@ -74,11 +75,11 @@ function getIcon(iconName: string) {
   }
 }
 
-export function QuickActions({ todayCount = 0 }: QuickActionsProps) {
+export function QuickActions({ todayCount = 0, isMobile = false }: QuickActionsProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className={`${styles.container} ${expanded ? styles.expanded : ''}`}>
+    <div className={`${styles.container} ${expanded ? styles.expanded : ''} ${isMobile ? styles.mobile : ''}`}>
       {/* 展开的 Actions */}
       <div className={styles.actions}>
         {actions.map((action) => (

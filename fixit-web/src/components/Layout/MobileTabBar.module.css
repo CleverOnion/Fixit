@@ -1,0 +1,63 @@
+/* components/Layout/MobileTabBar.module.css */
+/* Mobile bottom navigation bar styles */
+
+.mobileTabBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--fi-bg-card, #1a1a1b);
+  border-top: 1px solid var(--fi-border-subtle, #2a2a2d);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: var(--fi-radius-md, 10px);
+  color: var(--fi-text-secondary, #a1a1a6);
+  transition: all var(--fi-transition-fast, 120ms ease);
+  flex: 1;
+  text-decoration: none;
+}
+
+.tabItem:hover {
+  background: var(--fi-bg-hover, #2a2a2d);
+}
+
+.tabItemActive {
+  color: var(--fi-brand, #ff6b6b);
+}
+
+.tabIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.tabLabel {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Day theme */
+[data-theme="day"] .mobileTabBar {
+  background: rgba(255, 255, 255, 0.95);
+  border-top-color: var(--fi-border-subtle, #e5e7eb);
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .mobileTabBar {
+    display: none;
+  }
+}

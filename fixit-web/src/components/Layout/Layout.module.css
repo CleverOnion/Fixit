@@ -39,6 +39,7 @@
 @media (max-width: 768px) {
   .main {
     padding-top: 56px;
+    padding-bottom: 60px; /* Space for TabBar */
   }
 
   .pageContainer {

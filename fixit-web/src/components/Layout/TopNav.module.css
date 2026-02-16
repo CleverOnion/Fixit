@@ -271,19 +271,16 @@
 /* 响应式 */
 @media (max-width: 768px) {
   .nav {
-    padding: 0 12px;
+    padding: 0 16px;
   }
 
   .navLinks {
     display: none;
   }
 
-  .searchText {
+  .searchText,
+  .searchKbd {
     display: none;
-  }
-
-  .searchBtn {
-    padding: 8px 10px;
   }
 
   .logoText {

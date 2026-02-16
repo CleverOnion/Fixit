@@ -114,7 +114,7 @@
 @media (max-width: 768px) {
   .container {
     right: 16px;
-    bottom: 16px;
+    bottom: 80px; /* Move up to avoid TabBar overlap */
   }
 
   .mainBtn {

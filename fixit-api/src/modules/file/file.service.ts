@@ -1,9 +1,11 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, OnModuleInit } from '@nestjs/common';
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,7 +26,7 @@ interface MulterFile {
 }
 
 @Injectable()
-export class FileService {
+export class FileService implements OnModuleInit {
   private readonly logger = new Logger(FileService.name);
   private s3Client: S3Client;
   private bucket: string;
@@ -43,6 +45,35 @@ export class FileService {
       },
       forcePathStyle: true,
     });
+  }
+
+  async onModuleInit() {
+    await this.ensureBucketExists();
+  }
+
+  private async ensureBucketExists() {
+    try {
+      // 检查 bucket 是否存在
+      await this.s3Client.send(
+        new HeadBucketCommand({
+          Bucket: this.bucket,
+        }),
+      );
+      this.logger.log(`Bucket "${this.bucket}" already exists`);
+    } catch (error) {
+      if (error.name === 'NoSuchBucket' || error.$metadata?.httpStatusCode === 404) {
+        // Bucket 不存在，创建它
+        this.logger.log(`Creating bucket "${this.bucket}"...`);
+        await this.s3Client.send(
+          new CreateBucketCommand({
+            Bucket: this.bucket,
+          }),
+        );
+        this.logger.log(`Bucket "${this.bucket}" created successfully`);
+      } else {
+        this.logger.error(`Error checking bucket: ${error.message}`, error.stack);
+      }
+    }
   }
 
   async uploadImage(

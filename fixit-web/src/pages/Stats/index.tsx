@@ -60,11 +60,22 @@ function Heatmap({ data }: { data: HeatmapData[] }) {
     [data]
   );
 
-  const { days, weeks, monthLabels } = useMemo(() => {
+  // Detect if mobile screen
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const { days, weeks, monthLabels, monthlyData } = useMemo(() => {
     const today = new Date();
+    const daysToShow = isMobile ? 90 : 365; // Mobile: 3 months, Desktop: 1 year
     const allDays: { date: string; intensity: number; count: number }[] = [];
 
-    for (let i = 364; i >= 0; i--) {
+    for (let i = daysToShow - 1; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
@@ -85,18 +96,8 @@ function Heatmap({ data }: { data: HeatmapData[] }) {
     }
 
     const monthNames = [
-      '1月',
-      '2月',
-      '3月',
-      '4月',
-      '5月',
-      '6月',
-      '7月',
-      '8月',
-      '9月',
-      '10月',
-      '11月',
-      '12月',
+      '1月', '2月', '3月', '4月', '5月', '6月',
+      '7月', '8月', '9月', '10月', '11月', '12月',
     ];
 
     let currentMonth = -1;
@@ -112,16 +113,82 @@ function Heatmap({ data }: { data: HeatmapData[] }) {
       }
     });
 
-    return { days: allDays, weeks: allWeeks, monthLabels: labels };
-  }, [heatmapMap]);
+    // Monthly stats for mobile
+    const monthlyStats: { month: string; total: number; days: number }[] = [];
+    const monthMap = new Map<string, number>();
+
+    allDays.forEach(day => {
+      if (day.count > 0) {
+        const monthKey = day.date.substring(0, 7); // YYYY-MM
+        monthMap.set(monthKey, (monthMap.get(monthKey) || 0) + day.count);
+      }
+    });
+
+    monthMap.forEach((total, monthKey) => {
+      const [year, month] = monthKey.split('-');
+      monthlyStats.push({
+        month: `${parseInt(month)}月`,
+        total,
+        days: allDays.filter(d => d.date.startsWith(monthKey) && d.count > 0).length
+      });
+    });
+
+    monthlyStats.sort((a, b) => {
+      const monthOrder = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
+
+    return {
+      days: allDays,
+      weeks: allWeeks,
+      monthLabels: labels,
+      monthlyData: monthlyStats
+    };
+  }, [heatmapMap, isMobile]);
 
   const totalReviews = useMemo(
     () => days.reduce((sum, d) => sum + d.count, 0),
     [days]
   );
 
-  const weekWidth = 15; // 12px cell + 3px gap
+  const weekWidth = isMobile ? 10 : 15; // Smaller cells on mobile
 
+  // Mobile: show monthly summary instead of full grid
+  if (isMobile) {
+    return (
+      <div className={styles.heatmapMobile}>
+        <div className={styles.heatmapMobileHeader}>
+          <span className={styles.heatmapMobileTitle}>学习记录</span>
+          <span className={styles.heatmapMobileTotal}>共 {totalReviews} 次</span>
+        </div>
+        <div className={styles.heatmapMobileList}>
+          {monthlyData.length > 0 ? monthlyData.map((item, index) => (
+            <div key={index} className={styles.heatmapMobileItem}>
+              <span className={styles.heatmapMobileMonth}>{item.month}</span>
+              <div className={styles.heatmapMobileBars}>
+                <div className={styles.heatmapMobileBarBg}>
+                  <div
+                    className={styles.heatmapMobileBarFill}
+                    style={{
+                      width: `${Math.min((item.total / Math.max(...monthlyData.map(d => d.total))) * 100, 100)}%`
+                    }}
+                  />
+                </div>
+              </div>
+              <span className={styles.heatmapMobileCount}>{item.total}次</span>
+            </div>
+          )) : (
+            <div className={styles.heatmapMobileEmpty}>暂无学习记录</div>
+          )}
+        </div>
+        <div className={styles.heatmapMobileLegend}>
+          <span>近3个月数据</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: full heatmap grid
   return (
     <div className={styles.heatmapContainer}>
       <div className={styles.heatmapInner}>
