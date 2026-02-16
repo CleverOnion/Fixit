@@ -85,22 +85,16 @@ cd ../fixit-api && npm install
 cp .env.example .env
 # 编辑 .env 文件（至少配置 OPENAI_API_KEY）
 
-# 5. （首次使用）初始化数据库
+# 5. 启动后端
 cd fixit-api
-npx prisma migrate dev
-npx prisma seed
-
-# 6. 启动后端
 npm run start:dev
 
-# 7. 启动前端（新终端）
+# 6. 启动前端（新终端）
 cd ../fixit-web
 npm run dev
 ```
 
 访问 http://localhost:5173 开始使用！
-
-**说明**：步骤5仅在首次设置时需要，后续启动直接执行步骤6-7即可。
 
 ---
 
