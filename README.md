@@ -99,8 +99,10 @@ npm run dev
 ### DevOps
 
 - **容器化**: Docker + Docker Compose
-- **反向代理**: Nginx
-- **HTTPS**: Let's Encrypt (Certbot)
+- **反向代理**: Caddy（自动HTTPS）
+- **数据库**: PostgreSQL 17
+- **对象存储**: MinIO
+- **HTTPS**: Let's Encrypt（Caddy自动获取和续签）
 
 ---
 
@@ -144,9 +146,11 @@ Fixit/
     │   └── docker-compose.yml
     └── prod/              # 生产环境
         ├── docker-compose.yml
+        ├── Caddyfile      # Caddy配置（HTTP）
+        ├── Caddyfile.https # Caddy配置（HTTPS）
         ├── Dockerfile.api
         ├── Dockerfile.web
-        └── nginx-*.conf
+        └── .env.example   # 环境变量模板
 ```
 
 ---
@@ -183,6 +187,32 @@ MINIO_BUCKET=fixit-files
 
 ## 🚀 生产部署
 
+### 部署架构
+
+```
+                    ┌─────────────┐
+                    │   Caddy     │ (80/443)
+                    │  反向代理    │
+                    └──────┬──────┘
+                           │
+            ┌──────────────┼──────────────┐
+            │              │              │
+        /api/*           /*           :443
+            │              │              │
+            ▼              ▼              ▼
+      ┌─────────┐    ┌─────────┐   ┌─────────┐
+      │  API    │    │  Web    │   │ HTTPS   │
+      │ :3000   │    │  Nginx  │   │ 自动化  │
+      └─────────┘    └─────────┘   └─────────┘
+            │
+    ┌───────┼───────┐
+    ▼       ▼       ▼
+┌───────┐ ┌──────┐ ┌──────┐
+│ PG    │ │MinIO │ │ MC   │
+│:5432  │ │ :9000│ │      │
+└───────┘ └──────┘ └──────┘
+```
+
 ### Docker 部署（推荐）
 
 ```bash
@@ -190,37 +220,65 @@ cd deploy/prod
 
 # 1. 配置环境变量
 cp .env.example .env
-nano .env  # 修改敏感配置
+nano .env  # 修改敏感配置（API密钥、密码等）
 
-# 2. 启动所有服务
+# 2. 启动所有服务（HTTP模式）
 docker-compose up -d
 
-# 3. 初始化数据库
-docker exec fixit-api npx prisma migrate deploy
-
-# 4. 创建初始邀请码
-docker exec fixit-postgres psql -U fixit -d fixit \
-  -c "INSERT INTO invitation_codes (id, code) VALUES ('init', 'INIT123');"
+# 3. 查看服务状态
+docker-compose ps
+docker-compose logs -f caddy
 ```
 
-访问 `https://your-domain.com` 或 `https://your-ip`。
+访问方式：
+- **IP访问**: `http://your-server-ip`
+- **域名访问**: `http://your-domain.com`（需完成备案）
 
-### SSL 证书配置
+### 启用 HTTPS
 
-项目使用 Let's Encrypt 自动续期：
+**前提条件**：域名已备案并可正常访问
 
 ```bash
-# 首次获取证书
-docker run --rm -v ./certbot/conf:/etc/letsencrypt \
-  -v ./certbot/www:/var/www/certbot \
-  certbot/certbot certonly --webroot \
-  -w /var/www/certbot -d fixit.your-domain.com
+cd deploy/prod
 
-# 续期证书（已自动配置 cron）
-docker run --rm -v ./certbot/conf:/etc/letsencrypt \
-  -v ./certbot/www:/var/www/certbot \
-  certbot/certbot renew --webroot -w /var/www/certbot
+# 1. 切换到HTTPS配置
+mv Caddyfile.https Caddyfile
+
+# 2. 重启Caddy
+docker-compose restart caddy
+
+# Caddy会自动：
+# ✓ 获取Let's Encrypt证书
+# ✓ 配置HTTPS
+# ✓ HTTP重定向到HTTPS
+# ✓ 自动续签（到期前30天）
 ```
+
+### 环境变量说明
+
+生产环境主要配置项（`.env` 文件）：
+
+```bash
+# JWT配置
+JWT_SECRET=your-super-secret-jwt-key-change-this
+JWT_EXPIRES_IN=7d
+
+# AI配置（支持OpenAI及兼容接口）
+OPENAI_API_KEY=sk-your-api-key
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o
+
+# MinIO配置（对象存储）
+MINIO_ENDPOINT=http://minio:9000
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=your-strong-password
+MINIO_BUCKET=fixit-files
+
+# 前端配置
+VITE_API_BASE_URL=/api
+```
+
+**数据库配置**在 `docker-compose.yml` 中硬编码，无需在 `.env` 中设置。
 
 ---
 
