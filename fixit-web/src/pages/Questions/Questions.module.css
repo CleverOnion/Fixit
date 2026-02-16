@@ -435,18 +435,24 @@
   min-width: 0;
 }
 
-/* Mobile card header - visible only on mobile */
-.cardMobileHeader {
+/* Mobile card - visible only on mobile */
+.mobileCard {
   display: none;
 }
 
-/* Mobile card content - visible only on mobile */
-.cardMobileContent {
+.mobileCardHeader {
   display: none;
 }
 
-/* Mobile card meta - visible only on mobile */
-.cardMobileMeta {
+.mobileCardContent {
+  display: none;
+}
+
+.mobileCardTags {
+  display: none;
+}
+
+.mobileCardFooter {
   display: none;
 }
 
@@ -902,11 +908,12 @@
     margin-left: 0;
   }
 
-  /* Hide desktop table, show mobile cards */
+  /* Hide desktop table header */
   .tableHeader {
     display: none;
   }
 
+  /* Table wrapper - remove desktop styling */
   .tableWrapper {
     background: transparent;
     border: none;
@@ -915,21 +922,20 @@
     padding: 0;
   }
 
-  /* Hide desktop table cells, show mobile card layout */
+  /* Hide desktop table cells */
   .cellSubject,
   .cellContent,
   .cellMastery,
   .cellDate,
-  .cellActions {
+  .cellActions,
+  .cellSelect {
     display: none !important;
   }
 
-  /* Mobile card row */
-  .tableRow {
+  /* Show mobile card */
+  .mobileCard {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    padding: 0;
     background: var(--fi-bg-card, #1a1a1b);
     border: 1px solid var(--fi-border-subtle, #2a2a2d);
     border-radius: 12px;
@@ -937,50 +943,108 @@
     overflow: hidden;
   }
 
-  .tableRow:last-child {
-    border-bottom: 1px solid var(--fi-border-subtle, #2a2a2d);
-  }
-
-  /* Mobile card header */
-  .cardMobileHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--fi-border-subtle, #2a2a2d);
-  }
-
-  /* Mobile card content */
-  .cardMobileContent {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 14px 16px;
-  }
-
-  /* Mobile card meta */
-  .cardMobileMeta {
+  .mobileCardHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    border-top: 1px solid var(--fi-border-subtle, #2a2a2d);
-    background: var(--fi-bg-deep, #111112);
+    border-bottom: 1px solid var(--fi-border-subtle, #2a2a2d);
   }
 
-  .cellDate {
+  .mobileSubject {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fi-brand, #ff6b6b);
+    background: var(--fi-brand-dim, rgba(255, 107, 107, 0.12));
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .mobileMastery {
+    font-size: 12px;
+    color: var(--fi-text-secondary, #a1a1a6);
+  }
+
+  .mobileCardContent {
     display: block;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--fi-text-primary, #f5f5f7);
+    line-height: 1.6;
+  }
+
+  .mobileCardContent :global(.markdown-preview) {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fi-text-primary, #f5f5f7);
+  }
+
+  .mobileCardContent :global(.markdown-preview p) {
+    margin: 0;
+  }
+
+  .mobileCardTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 12px;
+  }
+
+  .mobileTag {
+    font-size: 11px;
+    color: var(--fi-text-secondary, #a1a1a6);
+    background: var(--fi-bg-surface, #232326);
+    border: 1px solid var(--fi-border-subtle, #2a2a2d);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .mobileCardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--fi-bg-deep, #111112);
+    border-top: 1px solid var(--fi-border-subtle, #2a2a2d);
+  }
+
+  .mobileDate {
     font-size: 12px;
     color: var(--fi-text-tertiary, #6b6b70);
-    padding: 0;
   }
 
-  .cellActions {
+  .mobileActions {
     display: flex;
-    opacity: 1;
-    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .mobileActionBtn,
+  .mobileActionBtnLink {
+    display: flex;
+    align-items: center;
     gap: 4px;
-    min-width: auto;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--fi-border-subtle, #2a2a2d);
+    background: transparent;
+    color: var(--fi-text-secondary, #a1a1a6);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--fi-transition-fast);
+    text-decoration: none;
+  }
+
+  .mobileActionBtn:hover {
+    border-color: var(--fi-brand, #ff6b6b);
+    color: var(--fi-brand, #ff6b6b);
+  }
+
+  .mobileActionBtnLink:hover {
+    text-decoration: none;
+  }
+
+  .mobileActionBtn svg {
+    font-size: 14px;
   }
 
   .pagination {
@@ -1003,46 +1067,62 @@
     padding: 16px;
   }
 
-  .tableRow {
+  .mobileCard {
     margin: 0 12px 10px;
     border-radius: 10px;
   }
 
-  .cardMobileHeader {
-    padding: 12px 14px;
-  }
-
-  .cardMobileContent {
-    padding: 12px 14px;
-  }
-
-  .cardMobileMeta {
+  .mobileCardHeader {
     padding: 10px 14px;
+  }
+
+  .mobileSubject {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .mobileMastery {
+    font-size: 11px;
+  }
+
+  .mobileCardContent {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .mobileCardContent :global(.markdown-preview) {
+    font-size: 13px;
+  }
+
+  .mobileCardTags {
+    padding: 0 14px 10px;
+  }
+
+  .mobileCardFooter {
+    padding: 10px 14px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .mobileDate {
+    text-align: center;
+  }
+
+  .mobileActions {
+    justify-content: space-between;
+  }
+
+  .mobileActionBtn,
+  .mobileActionBtnLink {
+    flex: 1;
+    justify-content: center;
+    padding: 8px;
   }
 
   .pagination {
     margin: 0 12px;
     border-radius: 10px;
-  }
-
-  .subjectBadge {
-    font-size: 11px;
-    padding: 0 8px;
-  }
-
-  .contentText {
-    font-size: 13px;
-  }
-
-  .masteryBadge {
-    font-size: 11px;
-    padding: 0 10px;
-    height: 26px;
-  }
-
-  .actionBtn {
-    width: 32px;
-    height: 32px;
   }
 }
 
