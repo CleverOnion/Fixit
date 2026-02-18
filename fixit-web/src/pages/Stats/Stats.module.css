@@ -1090,13 +1090,23 @@
     overflow-x: hidden;
   }
 
-  .dataCardValue {
-    font-size: 28px;
+  .dataCard {
+    padding: 16px;
   }
 
+  .dataCardValue {
+    font-size: 24px;
+  }
+
+  /* Tips grid - single column on mobile */
   .tipsGrid {
     grid-template-columns: 1fr;
+    gap: 16px;
     overflow-x: hidden;
+  }
+
+  .tipCard {
+    padding: 16px;
   }
 
   /* Study stats mobile adjustments */
@@ -1118,17 +1128,17 @@
 
   /* Ring chart mobile adjustments */
   .ringChartContainer {
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
   }
 
   .ringChart {
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
   }
 
   .ringCenterValue {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .masteryBarItem {
@@ -1142,7 +1152,7 @@
 
   /* Card padding reduction on mobile */
   .card {
-    padding: 20px;
+    padding: 16px;
   }
 
   /* Section title mobile */
@@ -1170,6 +1180,17 @@
     gap: 8px;
     font-size: 10px;
   }
+
+  /* Collapse card adjustments */
+  .twoColGrid,
+  .twoColGridEqual {
+    display: block;
+  }
+
+  .twoColGrid > *,
+  .twoColGridEqual > * {
+    margin-bottom: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1188,13 +1209,13 @@
 
   /* Ring chart further size reduction */
   .ringChartContainer {
-    width: 130px;
-    height: 130px;
+    width: 120px;
+    height: 120px;
   }
 
   .ringChart {
-    width: 130px;
-    height: 130px;
+    width: 120px;
+    height: 120px;
   }
 
   .ringCenterValue {
@@ -1238,7 +1259,7 @@
 
   /* Data card adjustments */
   .dataCard {
-    padding: 18px;
+    padding: 16px;
   }
 
   .dataCardLabel {

@@ -25,6 +25,7 @@ import {
   CalendarData,
 } from '../../api/review';
 import { useUserStore } from '../../stores/userStore';
+import { CollapseCard } from '../../components/CollapseCard';
 import styles from './Stats.module.css';
 
 // ============================================================
@@ -676,7 +677,7 @@ export default function StatsPage() {
 
       {/* ====== Main Content ====== */}
       <div className={styles.main}>
-        {/* Data Cards */}
+        {/* Data Cards - Always expanded on mobile */}
         <div
           className={`${styles.dataCardsGrid} ${styles.staggerItem}`}
           style={{ animationDelay: '0ms' }}
@@ -737,24 +738,26 @@ export default function StatsPage() {
           </div>
         </div>
 
-        {/* Heatmap + Study Stats */}
-        <div
-          className={`${styles.twoColGrid} ${styles.staggerItem}`}
-          style={{ animationDelay: '100ms' }}
-        >
-          <div className={styles.card}>
-            <div className={styles.sectionTitle}>
-              <div className={styles.sectionTitleDot} />
-              学习热力图
-            </div>
+        {/* Heatmap - Collapsible on mobile */}
+        <div className={styles.staggerItem} style={{ animationDelay: '100ms' }}>
+          <CollapseCard
+            title="学习热力图"
+            icon={<FireOutlined />}
+            defaultExpanded={true}
+            showExpander={true}
+          >
             <Heatmap data={heatmapData} />
-          </div>
+          </CollapseCard>
+        </div>
 
-          <div className={styles.card}>
-            <div className={styles.sectionTitle}>
-              <div className={styles.sectionTitleDot} />
-              学习概览
-            </div>
+        {/* Study Stats - Collapsible on mobile */}
+        <div className={styles.staggerItem} style={{ animationDelay: '150ms' }}>
+          <CollapseCard
+            title="学习概览"
+            icon={<BookOutlined />}
+            defaultExpanded={false}
+            showExpander={true}
+          >
             <div className={styles.studyStatsList}>
               <div className={styles.studyStatItem}>
                 <span className={styles.studyStatLabel}>本周复习</span>
@@ -791,19 +794,17 @@ export default function StatsPage() {
                 </span>
               </div>
             </div>
-          </div>
+          </CollapseCard>
         </div>
 
-        {/* Mastery Distribution + Calendar */}
-        <div
-          className={`${styles.twoColGridEqual} ${styles.staggerItem}`}
-          style={{ animationDelay: '200ms' }}
-        >
-          <div className={styles.card}>
-            <div className={styles.sectionTitle}>
-              <div className={styles.sectionTitleDot} />
-              掌握程度分布
-            </div>
+        {/* Mastery Distribution - Collapsible on mobile */}
+        <div className={styles.staggerItem} style={{ animationDelay: '200ms' }}>
+          <CollapseCard
+            title="掌握程度分布"
+            icon={<TrophyOutlined />}
+            defaultExpanded={false}
+            showExpander={true}
+          >
             <div className={styles.masterySection}>
               <RingChart
                 segments={ringSegments}
@@ -832,23 +833,27 @@ export default function StatsPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </CollapseCard>
+        </div>
 
-          <div className={styles.card}>
-            <div className={styles.sectionTitle}>
-              <div className={styles.sectionTitleDot} />
-              月度复习记录
-            </div>
+        {/* Monthly Calendar - Collapsible on mobile */}
+        <div className={styles.staggerItem} style={{ animationDelay: '250ms' }}>
+          <CollapseCard
+            title="月度复习记录"
+            icon={<ClockCircleOutlined />}
+            defaultExpanded={false}
+            showExpander={true}
+          >
             <MonthlyCalendar
               data={calendarData}
               year={calendarDate.year}
               month={calendarDate.month}
               onChange={(y, m) => setCalendarDate({ year: y, month: m })}
             />
-          </div>
+          </CollapseCard>
         </div>
 
-        {/* Learning Tips */}
+        {/* Learning Tips - Single column on mobile */}
         <div
           className={styles.staggerItem}
           style={{ animationDelay: '300ms' }}

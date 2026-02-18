@@ -18,6 +18,7 @@ import { reviewApi, Question, StreakData } from '../api/review';
 import { questionApi } from '../api/question';
 import { MarkdownInline } from '../components/MarkdownEditor';
 import { useStatsStore } from '../stores/statsStore';
+import { CollapseCard } from '../components/CollapseCard';
 import styles from './Home.module.css';
 
 const MASTERY_LABELS = ['未学', '初学', '熟悉', '掌握', '精通', '专家'];
@@ -323,106 +324,114 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ====== Quick Actions ====== */}
+      {/* ====== Quick Actions - Mobile Collapsed ====== */}
       <section className={styles.quickActionsSection}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>快捷入口</h2>
-        </div>
-        <div className={styles.quickActionsGrid}>
-          {quickActions.map((action) => (
-            <Link
-              key={action.key}
-              to={action.to}
-              className={`${styles.actionCard} ${action.variant}`}
-            >
-              <div className={styles.actionIconWrapper}>
-                {action.icon}
-              </div>
-              <div className={styles.actionInfo}>
-                <h4>{action.title}</h4>
-                <p>{action.subtitle}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <CollapseCard
+          title="快捷入口"
+          icon={<PlusOutlined />}
+          defaultExpanded={true}
+          showExpander={true}
+        >
+          <div className={styles.quickActionsGrid}>
+            {quickActions.map((action) => (
+              <Link
+                key={action.key}
+                to={action.to}
+                className={`${styles.actionCard} ${action.variant}`}
+              >
+                <div className={styles.actionIconWrapper}>
+                  {action.icon}
+                </div>
+                <div className={styles.actionInfo}>
+                  <h4>{action.title}</h4>
+                  <p>{action.subtitle}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </CollapseCard>
       </section>
 
-      {/* ====== Stats Grid ====== */}
+      {/* ====== Stats Grid - Mobile Collapsed ====== */}
       <section className={styles.statsSection}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>学习概览</h2>
-        </div>
-        <div className={styles.statsGrid}>
-          <div className={`${styles.statCard} ${styles.statCardTotal}`}>
-            <div className={styles.statHeader}>
-              <p className={styles.statLabel}>总题目数</p>
-              <div className={styles.statIconBadge}>
-                <EditOutlined />
+        <CollapseCard
+          title="学习概览"
+          icon={<BarChartOutlined />}
+          defaultExpanded={true}
+          showExpander={true}
+        >
+          <div className={styles.statsGrid}>
+            <div className={`${styles.statCard} ${styles.statCardTotal}`}>
+              <div className={styles.statHeader}>
+                <p className={styles.statLabel}>总题目数</p>
+                <div className={styles.statIconBadge}>
+                  <EditOutlined />
+                </div>
+              </div>
+              <AnimatedNumber value={questions.length} />
+              <div className={styles.statFooter}>
+                <span>全部错题</span>
               </div>
             </div>
-            <AnimatedNumber value={questions.length} />
-            <div className={styles.statFooter}>
-              <span>全部错题</span>
-            </div>
-          </div>
 
-          <div className={`${styles.statCard} ${styles.statCardReview}`}>
-            <div className={styles.statHeader}>
-              <p className={styles.statLabel}>今日待复习</p>
-              <div className={styles.statIconBadge}>
-                <ClockCircleOutlined />
+            <div className={`${styles.statCard} ${styles.statCardReview}`}>
+              <div className={styles.statHeader}>
+                <p className={styles.statLabel}>今日待复习</p>
+                <div className={styles.statIconBadge}>
+                  <ClockCircleOutlined />
+                </div>
+              </div>
+              <AnimatedNumber value={todayCount} />
+              <div className={styles.statFooter}>
+                <span>{todayCount > 0 ? '需要复习' : '已完成'}</span>
               </div>
             </div>
-            <AnimatedNumber value={todayCount} />
-            <div className={styles.statFooter}>
-              <span>{todayCount > 0 ? '需要复习' : '已完成'}</span>
-            </div>
-          </div>
 
-          <div className={`${styles.statCard} ${styles.statCardTodayReviewed}`}>
-            <div className={styles.statHeader}>
-              <p className={styles.statLabel}>今日已刷</p>
-              <div className={styles.statIconBadge}>
-                <CheckCircleOutlined />
+            <div className={`${styles.statCard} ${styles.statCardTodayReviewed}`}>
+              <div className={styles.statHeader}>
+                <p className={styles.statLabel}>今日已刷</p>
+                <div className={styles.statIconBadge}>
+                  <CheckCircleOutlined />
+                </div>
+              </div>
+              <AnimatedNumber value={todayReviewed} />
+              <div className={styles.statFooter}>
+                <span>累计刷题</span>
               </div>
             </div>
-            <AnimatedNumber value={todayReviewed} />
-            <div className={styles.statFooter}>
-              <span>累计刷题</span>
-            </div>
-          </div>
 
-          <div className={`${styles.statCard} ${styles.statCardMastery}`}>
-            <div className={styles.statHeader}>
-              <p className={styles.statLabel}>掌握率</p>
-              <div className={styles.statIconBadge}>
-                <CheckCircleOutlined />
+            <div className={`${styles.statCard} ${styles.statCardMastery}`}>
+              <div className={styles.statHeader}>
+                <p className={styles.statLabel}>掌握率</p>
+                <div className={styles.statIconBadge}>
+                  <CheckCircleOutlined />
+                </div>
+              </div>
+              <AnimatedNumber value={masteryRate} suffix="%" />
+              <div className={styles.statFooter}>
+                <span>{masteredCount} 题已掌握</span>
               </div>
             </div>
-            <AnimatedNumber value={masteryRate} suffix="%" />
-            <div className={styles.statFooter}>
-              <span>{masteredCount} 题已掌握</span>
-            </div>
-          </div>
 
-          <div className={`${styles.statCard} ${styles.statCardStreak}`}>
-            <div className={styles.statHeader}>
-              <p className={styles.statLabel}>连续学习</p>
-              <div className={styles.statIconBadge}>
-                <FireOutlined />
+            <div className={`${styles.statCard} ${styles.statCardStreak}`}>
+              <div className={styles.statHeader}>
+                <p className={styles.statLabel}>连续学习</p>
+                <div className={styles.statIconBadge}>
+                  <FireOutlined />
+                </div>
+              </div>
+              <AnimatedNumber
+                value={streakData?.currentStreak ?? 0}
+                suffix="天"
+              />
+              <div className={styles.statFooter}>
+                <span>
+                  最长 {streakData?.longestStreak ?? 0} 天
+                </span>
               </div>
             </div>
-            <AnimatedNumber
-              value={streakData?.currentStreak ?? 0}
-              suffix="天"
-            />
-            <div className={styles.statFooter}>
-              <span>
-                最长 {streakData?.longestStreak ?? 0} 天
-              </span>
-            </div>
           </div>
-        </div>
+        </CollapseCard>
       </section>
 
       {/* ====== Middle Row: Mastery Ring + Recent Questions ====== */}

@@ -924,18 +924,45 @@
     font-size: var(--fi-size-h2);
   }
 
+  /* Quick actions - 2x2 grid on mobile */
   .quickActionsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--fi-space-3);
+    gap: 12px;
   }
 
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--fi-space-3);
+    gap: 12px;
+  }
+
+  .statCard {
+    padding: 14px 12px;
   }
 
   .statValue {
-    font-size: 24px;
+    font-size: 20px;
+  }
+
+  .actionCard {
+    padding: 14px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .actionIconWrapper {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .actionInfo h4 {
+    font-size: 13px;
+  }
+
+  .actionInfo p {
+    font-size: 11px;
+    margin-top: 2px;
   }
 
   .middleRow {
@@ -957,10 +984,63 @@
 
 @media (max-width: 480px) {
   .quickActionsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .actionCard {
+    padding: 12px 10px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .actionInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .actionInfo h4 {
+    font-size: 12px;
+  }
+
+  .actionInfo p {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  .actionIconWrapper {
+    width: 36px;
+    height: 36px;
   }
 
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 12px 10px;
+  }
+
+  .statLabel {
+    font-size: 11px;
+  }
+
+  .statValue {
+    font-size: 18px;
+  }
+
+  .statFooter {
+    font-size: 10px;
+    display: none;
+  }
+
+  .statIconBadge {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
   }
 }
