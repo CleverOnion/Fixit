@@ -3,8 +3,6 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
-import '@uiw/react-markdown-preview/markdown.css';
 
 interface MarkdownEditorProps {
   value: string;
