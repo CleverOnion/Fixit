@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -13,6 +14,10 @@ import { InvitationModule } from './modules/invitation/invitation.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['../.env', '.env'],
+      isGlobal: true,
+    }),
     AuthModule,
     QuestionModule,
     FileModule,
