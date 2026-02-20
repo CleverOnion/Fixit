@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
+import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -11,11 +12,14 @@ import { AiModule } from './modules/ai/ai.module';
 import { ReviewModule } from './modules/review/review.module';
 import { InvitationModule } from './modules/invitation/invitation.module';
 
+const envFilePath = path.resolve(process.cwd(), '../.env');
+console.log('[Config] Loading .env from:', envFilePath);
+
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
-      envFilePath: ['../.env', '.env'],
+      envFilePath,
       isGlobal: true,
     }),
     AuthModule,
