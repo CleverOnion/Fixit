@@ -83,3 +83,47 @@ npx prisma studio                 # Open database GUI
 - Backend environment: `fixit-api/.env` (DB, JWT, MinIO, AI API keys)
 - Frontend environment: `fixit-web/.env` (API base URL)
 - Vite proxy config: `fixit-web/vite.config.ts` (proxies /api to localhost:3000)
+
+## Version Management (IMPORTANT)
+
+### Every Commit Requirements
+
+Before creating any commit, you MUST:
+
+1. **Update version number** in both:
+   - `fixit-api/package.json` (version field)
+   - `fixit-web/package.json` (version field)
+
+2. **Update CHANGELOG.md** with:
+   - New version entry with current date
+   - List of changes (Added/Changed/Fixed/Removed)
+   - Use [Keep a Changelog](https://keepachangelog.com/) format
+
+3. **Version bump rules**:
+   - `patch` (x.x.0 → x.x.1): Bug fixes, small improvements
+   - `minor` (x.0.0 → x.1.0): New features, backward compatible
+   - `major` (0.x.0 → 1.0.0): Breaking changes
+
+### Example CHANGELOG Entry
+
+```markdown
+## [1.0.1] - 2026-02-20
+
+### Fixed
+- Fix JWT token validation issue
+
+### Changed
+- Update theme switch animation
+```
+
+### Commit Message Format
+
+```
+<type>: <description>
+
+[optional body]
+```
+
+Types: feat, fix, refactor, docs, test, chore, perf, ci
+
+Note: Attribution disabled globally via ~/.claude/settings.json.
