@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with this repository.
 
 ## Project Overview
 
@@ -8,83 +8,137 @@ Fixit is a mistake management web application helping students convert wrong ans
 
 ## Tech Stack
 
-**Frontend (fixit-web)**: React 19, TypeScript, Vite, Ant Design 6, Zustand (state), React Router, Tailwind CSS
+**Frontend (fixit-web)**: React 19, TypeScript, Vite, Ant Design 6, Zustand (state), React Router
 **Backend (fixit-api)**: NestJS 11, TypeScript, Prisma 5 (PostgreSQL), JWT auth, MinIO (file storage)
-**Infrastructure**: Docker (PostgreSQL 15, MinIO), npm workspaces
+**Infrastructure**: Docker (PostgreSQL 17, MinIO)
+
+## Project Structure
+
+```
+Fixit/
+├── .env                    # 环境配置文件 (根目录)
+├── CHANGELOG.md            # 版本更新日志
+├── CLAUDE.md               # Claude Code 指南
+├── README.md               # 项目文档
+├── fixit-api/              # NestJS 后端
+│   ├── src/
+│   │   ├── modules/        # 业务模块
+│   │   │   ├── auth/      # JWT 认证
+│   │   │   ├── question/  # 题目管理
+│   │   │   ├── tag/       # 标签管理
+│   │   │   ├── file/      # 文件上传
+│   │   │   ├── ai/        # AI 功能 (DashScope)
+│   │   │   ├── review/    # 复习模块
+│   │   │   └── invitation/# 邀请码
+│   │   ├── prisma.service.ts
+│   │   ├── main.ts
+│   │   └── app.module.ts
+│   └── prisma/
+│       └── schema.prisma   # 数据库模型
+├── fixit-web/              # React 前端
+│   ├── src/
+│   │   ├── api/           # API 服务层
+│   │   ├── stores/        # Zustand 状态管理
+│   │   ├── pages/         # 页面组件
+│   │   └── components/   # 公共组件
+│   └── vite.config.ts
+└── deploy/
+    ├── dev/               # 开发环境 Docker 配置
+    └── prod/              # 生产环境 Docker 配置
+```
 
 ## Commands
 
 ### Frontend
 ```bash
 cd fixit-web
-npm run dev          # Dev server at http://localhost:5173
-npm run build        # TypeScript check + production build
-npm run lint         # Run ESLint
+npm run dev          # 开发服务器 http://localhost:5173
+npm run build        # TypeScript 检查 + 生产构建
+npm run lint         # ESLint 检查
 ```
 
 ### Backend
 ```bash
 cd fixit-api
-npm run start:dev    # Hot reload server (http://localhost:3000)
-npm run test         # Run Vitest in watch mode
-npm run test:run     # Run tests once (CI mode)
-npm run format       # Prettier formatting
-npm run lint         # ESLint with auto-fix
+npm run start:dev    # 热重载服务器 http://localhost:3000
+npm run test         # Vitest 监听模式
+npm run test:run    # 单次测试 (CI 模式)
+npm run format       # Prettier 格式化
+npm run lint         # ESLint 检查 + 自动修复
 ```
 
 ### Infrastructure
 ```bash
-docker-compose up -d              # Start PostgreSQL (:5433) and MinIO (:9000/9001)
-npx prisma migrate dev            # Run database migrations
-npx prisma studio                 # Open database GUI
+# 启动开发环境 (PostgreSQL + MinIO)
+docker-compose -f deploy/dev/docker-compose.yml up -d
+
+# 数据库
+cd fixit-api
+npx prisma migrate dev    # 运行数据库迁移
+npx prisma studio         # 打开 Prisma Studio
+npx prisma db seed        # 初始化数据
 ```
 
-## Architecture
+## Environment Configuration
 
-### Backend Modules (fixit-api/src/modules/)
-- `auth/` - JWT authentication, register/login endpoints
-- `question/` - Question CRUD, review scheduling
-- `tag/` - Tag management (SYSTEM/CUSTOM types)
-- `file/` - MinIO file upload/download
-- `ai/` - OpenAI GPT-4o integration for auto-tagging
+### .env (项目根目录)
 
-### Frontend Structure (fixit-web/src/)
-- `api/` - Domain service files (auth.ts, question.ts, etc.)
-- `stores/` - Zustand stores with localStorage persistence
-- `pages/` - Route components (Login, Register, Home, Questions, Import)
-- `components/` - Reusable components (MarkdownEditor.tsx)
+环境配置文件位于项目根目录 `.env`，后端通过 `app.module.ts` 中的 `ConfigModule` 加载：
 
-### Database Schema
-- `users` - Accounts with email, password, nickname, avatar
-- `questions` - Content, answer, analysis, subject, mastery level, tags
-- `tags` - SYSTEM/CUSTOM labels
-- `question_tags` - Many-to-many relation
-- `review_logs` - Review history with FORGOTTEN/FUZZY/MASTERED statuses
+```bash
+# JWT 配置
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=7d
 
-## Key Patterns
+# AI 配置 (阿里云 DashScope)
+OPENAI_API_KEY=sk-xxx
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+OPENAI_MODEL=qwen3-vl-flash
+AI_MAX_TOKENS=2000
 
-- **State**: Zustand with persistence middleware (localStorage)
-- **Auth**: JWT stored in localStorage, PrivateRoute component for protected pages
-- **API**: Service layer pattern with separate files per domain
-- **Validation**: DTOs with class-validator on backend
-- **Database**: Prisma ORM with cascading deletes enabled
+# 数据库 (PostgreSQL)
+DATABASE_URL=postgresql://fixit:fixit@localhost:35432/fixit
 
-## Access Points (when running)
+# MinIO 对象存储
+MINIO_ENDPOINT=http://localhost:39000
+MINIO_PORT=39000
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=password123
+MINIO_BUCKET=fixit-files
+
+# 前端
+VITE_API_BASE_URL=/api
+```
+
+### Access Points
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | Frontend | http://localhost:5173 | - |
 | Backend | http://localhost:3000 | - |
-| MinIO Console | http://localhost:9001 | admin / password123 |
-| PostgreSQL | localhost:5433 | fixit / fixit |
+| MinIO Console | http://localhost:39001 | admin / password123 |
+| PostgreSQL | localhost:35432 | fixit / fixit |
 
-## Configuration
+## Key Patterns
 
-- Backend environment: `fixit-api/.env` (DB, JWT, MinIO, AI API keys)
-- Frontend environment: `fixit-web/.env` (API base URL)
-- Vite proxy config: `fixit-web/vite.config.ts` (proxies /api to localhost:3000)
+- **State**: Zustand with persist middleware (localStorage)
+- **Auth**: JWT stored in localStorage, PrivateOutlet for protected routes
+- **API**: Service layer pattern with separate files per domain
+- **Validation**: DTOs with class-validator on backend
+- **Database**: Prisma ORM with cascading deletes
 
-## Version Management (IMPORTANT)
+## Database Schema
+
+- `users` - 用户账户 (email, password, nickname, avatar)
+- `questions` - 题目 (content, answer, analysis, subject, mastery, tags)
+- `tags` - 标签 (SYSTEM/CUSTOM types)
+- `question_tags` - 题目-标签多对多关系
+- `review_logs` - 复习记录 (FORGOTTEN/FUZZY/MASTERED)
+- `practice_sessions` - 练习轮次
+- `practice_records` - 每日练习记录
+- `invitation_codes` - 邀请码
+
+## Version Management
 
 ### Every Commit Requirements
 
@@ -116,7 +170,7 @@ Before creating any commit, you MUST:
 - Update theme switch animation
 ```
 
-### Commit Message Format
+## Commit Message Format
 
 ```
 <type>: <description>
@@ -125,5 +179,3 @@ Before creating any commit, you MUST:
 ```
 
 Types: feat, fix, refactor, docs, test, chore, perf, ci
-
-Note: Attribution disabled globally via ~/.claude/settings.json.
