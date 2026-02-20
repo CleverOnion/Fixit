@@ -117,6 +117,12 @@ interface ErrorFallbackProps {
 }
 
 export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  const handleReload = () => {
+    if (confirm('确定要刷新页面吗？')) {
+      window.location.reload();
+    }
+  };
+
   return (
     <Result
       status="error"
@@ -127,7 +133,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
           key="reload"
           type="primary"
           icon={<ReloadOutlined />}
-          onClick={resetErrorBoundary || (() => window.location.reload())}
+          onClick={resetErrorBoundary || handleReload}
         >
           刷新页面
         </Button>,

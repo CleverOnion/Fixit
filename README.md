@@ -9,7 +9,7 @@
 ![NestJS](https://img.shields.io/badge/NestJS-11.0-red)
 ![React](https://img.shields.io/badge/React-19.0-cyan)
 
-[在线演示](#演示) • [快速开始](#快速开始) • [部署文档](#生产部署) • [API文档](#api文档)
+[在线演示](#演示) • [快速开始](#快速开始) • [部署文档](#生产部署) • [API文档](#api文档) • [更新日志](./CHANGELOG.md)
 
 </div>
 

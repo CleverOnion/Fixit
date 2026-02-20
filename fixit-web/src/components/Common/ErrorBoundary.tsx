@@ -29,11 +29,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private handleReload = () => {
-    window.location.reload();
+    if (confirm('确定要刷新页面吗？未保存的数据可能会丢失。')) {
+      window.location.reload();
+    }
   };
 
   private handleGoHome = () => {
-    window.location.href = '/';
+    if (confirm('确定要返回首页吗？')) {
+      window.location.href = '/';
+    }
   };
 
   public render() {

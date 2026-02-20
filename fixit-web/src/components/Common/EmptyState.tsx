@@ -117,12 +117,19 @@ export const EmptyStates = {
   ),
 
   // 网络错误
-  networkError: (onRetry?: () => void) => (
-    <EmptyState
-      title="网络错误"
-      description="请检查网络连接后重试"
-      action={{ label: '重新加载', onClick: onRetry || (() => window.location.reload()) }}
-      image={<span style={{ fontSize: 64 }}>🌐</span>}
-    />
-  ),
+  networkError: (onRetry?: () => void) => {
+    const handleReload = () => {
+      if (confirm('确定要刷新页面吗？')) {
+        window.location.reload();
+      }
+    };
+    return (
+      <EmptyState
+        title="网络错误"
+        description="请检查网络连接后重试"
+        action={{ label: '重新加载', onClick: onRetry || handleReload }}
+        image={<span style={{ fontSize: 64 }}>🌐</span>}
+      />
+    );
+  },
 };

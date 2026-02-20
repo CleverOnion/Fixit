@@ -19,13 +19,14 @@ export function CollapseCard({
   showExpander = true,
 }: CollapseCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [animating, setAnimating] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const animatingRef = useRef(false);
 
   const handleToggle = () => {
-    if (animating) return;
+    if (animatingRef.current) return;
     const newExpanded = !expanded;
     setExpanded(newExpanded);
+    animatingRef.current = true;
     onToggle?.(newExpanded);
   };
 
@@ -56,6 +57,13 @@ export function CollapseCard({
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
     }
+
+    // 动画结束后重置状态
+    const timer = setTimeout(() => {
+      animatingRef.current = false;
+    }, 120);
+
+    return () => clearTimeout(timer);
   }, [expanded, children]);
 
   return (
@@ -80,7 +88,6 @@ export function CollapseCard({
         ref={contentRef}
         className={styles.content}
         style={{
-          maxHeight: expanded ? `${(children as React.ReactElement)?.props?.children ? 500 : 0}px` : '0px',
           opacity: expanded ? 1 : 0,
           transition: 'max-height 120ms ease-out, opacity 120ms ease-out',
         }}
