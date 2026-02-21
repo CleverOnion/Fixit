@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-02-21
+
+### Changed
+
+- **性能优化** - 新增 todayStore 统一管理今日统计状态，避免重复请求
+- **状态管理** - 所有 Zustand stores 添加版本控制和迁移支持
+- **无障碍改进** - 表单输入添加 label 和 aria-label
+- **无障碍改进** - 交互元素添加正确的语义和 ARIA 属性
+- **无障碍改进** - 添加 prefers-reduced-motion 动画支持
+- **代码质量** - 修复 React Hooks 规则错误和 TypeScript 类型问题
+
+### Fixed
+
+- 修复 CollapseCard 组件的布局读取性能问题
+- 修复键盘事件监听器缺少 passive 选项
+- 修复移动端搜索框 autofocus 影响体验问题
+- 修复 linter 报错的未使用变量和空块语句
+
 ## [1.2.0] - 2026-02-21
 
 ### Added
