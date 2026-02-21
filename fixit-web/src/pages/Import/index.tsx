@@ -9,6 +9,7 @@ import { questionApi, CreateQuestionParams } from '../../api/question';
 import { fileApi } from '../../api/file';
 import { aiApi } from '../../api/ai';
 import { tagApi, Tag } from '../../api/tag';
+import { findMatchingSubject } from '../../utils/string-matching';
 import styles from './Import.module.css';
 
 // ===== Types =====
@@ -56,10 +57,14 @@ function SubjectSelector({
   value,
   onChange,
   usedSubjects = [],
+  aiDetected = false,
+  isNewSubject = false,
 }: {
   readonly value: string;
   readonly onChange: (v: string) => void;
   readonly usedSubjects?: ReadonlyArray<string>;
+  readonly aiDetected?: boolean;
+  readonly isNewSubject?: boolean;
 }) {
   const [customMode, setCustomMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,9 +97,18 @@ function SubjectSelector({
         <button
           key={subj}
           type="button"
-          className={`${styles.subjectPill} ${value.toLowerCase() === subj.toLowerCase() ? styles.selected : ''}`}
+          className={`${styles.subjectPill} ${value.toLowerCase() === subj.toLowerCase() ? styles.selected : ''} ${aiDetected && value.toLowerCase() === subj.toLowerCase() ? styles.aiDetected : ''}`}
           onClick={() => onChange(value.toLowerCase() === subj.toLowerCase() ? '' : subj)}
         >
+          {aiDetected && value.toLowerCase() === subj.toLowerCase() && (
+            <span className={styles.aiBadge}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </span>
+          )}
           {subj}
         </button>
       ))}
@@ -133,8 +147,25 @@ function SubjectSelector({
         </button>
       )}
 
+      {/* 新学科标识 */}
+      {!isExistingSubject && value && !customMode && (
+        <span className={`${styles.subjectPill} ${styles.selected} ${isNewSubject ? styles.aiNewLabel : ''}`}>
+          {aiDetected && (
+            <span className={styles.aiBadge}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </span>
+          )}
+          {value}
+          {isNewSubject && <span className={styles.aiNewLabel}> 新</span>}
+        </span>
+      )}
+
       {/* 暂无数据提示 */}
-      {usedSubjects.length === 0 && !customMode && (
+      {usedSubjects.length === 0 && !customMode && !value && (
         <span className={styles.subjectEmptyHint}>暂无历史学科，请选择"自定义"添加</span>
       )}
     </div>
@@ -771,6 +802,11 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
   // Subject state
   const [usedSubjects, setUsedSubjects] = useState<ReadonlyArray<string>>([]);
 
+  // AI detection state
+  const [aiDetectedSubject, setAiDetectedSubject] = useState<string | null>(null);
+  const [isAiDetected, setIsAiDetected] = useState(false);
+  const [isNewSubject, setIsNewSubject] = useState(false);
+
   // UI state
   const [submitting, setSubmitting] = useState(false);
   const [initialLoading, setInitialLoading] = useState(mode === 'edit');
@@ -949,6 +985,32 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
               images: base64Images,
               instruction: '请完整识别图片中的题目内容、答案和解析',
             });
+
+            // Handle AI-detected subject
+            if (recognizeResult.data.subject) {
+              const detectedSubject = recognizeResult.data.subject.trim();
+              const matchedSubject = findMatchingSubject(detectedSubject, usedSubjects);
+
+              if (matchedSubject) {
+                // Found matching subject in existing list
+                setSubject(matchedSubject);
+                setIsAiDetected(true);
+                setAiDetectedSubject(detectedSubject);
+                setIsNewSubject(false);
+                message.success(`题目识别成功，已自动识别学科：${matchedSubject}`);
+              } else {
+                // New subject - add to usedSubjects and mark as new
+                setSubject(detectedSubject);
+                setIsAiDetected(true);
+                setAiDetectedSubject(detectedSubject);
+                setIsNewSubject(true);
+                setUsedSubjects(prev => [detectedSubject, ...prev]);
+                message.success(`题目识别成功，已识别新学科：${detectedSubject}`);
+              }
+            } else {
+              message.success('题目识别成功');
+            }
+
             if (recognizeResult.data.content) {
               setContent(recognizeResult.data.content);
             }
@@ -958,7 +1020,6 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
             if (recognizeResult.data.analysis) {
               setAnalysis(recognizeResult.data.analysis);
             }
-            message.success('题目识别成功');
           } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             message.error(err.response?.data?.message || 'AI 识别失败');
@@ -1030,6 +1091,14 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
     setSelectedTags((prev) =>
       prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
     );
+  }, []);
+
+  // Subject change handler - clears AI detection on manual override
+  const handleSubjectChange = useCallback((newSubject: string) => {
+    setSubject(newSubject);
+    setIsAiDetected(false);
+    setAiDetectedSubject(null);
+    setIsNewSubject(false);
   }, []);
 
   // Submit
@@ -1210,7 +1279,13 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
               </svg>
               学科
             </div>
-            <SubjectSelector value={subject} onChange={setSubject} usedSubjects={usedSubjects} />
+            <SubjectSelector
+              value={subject}
+              onChange={handleSubjectChange}
+              usedSubjects={usedSubjects}
+              aiDetected={isAiDetected}
+              isNewSubject={isNewSubject}
+            />
           </div>
 
           {/* Content */}

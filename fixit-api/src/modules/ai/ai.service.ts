@@ -36,12 +36,13 @@ export class AiService {
         userPrompt = `请从图片中完整提取题目内容、答案和解析，遵循以下规则：
 
 【必须执行的规则】
-1. 完整提取题目内容（含选项）
-2. 完整提取答案部分（选择题的 A/B/C/D 选项，或填空题的答案）
-3. 完整提取解题过程/解析
-4. 数学公式使用规范的 LaTeX 格式，如 $x^2$、$\frac{a}{b}$、$\sqrt{x}$、$a_{n}$、$a^n$、$\sum_{i=1}^{n}$ 等
-5. 化学方程式使用规范格式，如 $2H_2 + O_2 \\rightarrow 2H_2O$
-6. 直接返回内容，不要添加任何解释或说明文字
+1. 识别并提取题目所属的学科（如：数学、物理、化学、生物、历史、地理、政治、语文、英语等）
+2. 完整提取题目内容（含选项）
+3. 完整提取答案部分（选择题的 A/B/C/D 选项，或填空题的答案）
+4. 完整提取解题过程/解析
+5. 数学公式使用规范的 LaTeX 格式，如 $x^2$、$\frac{a}{b}$、$\sqrt{x}$、$a_{n}$、$a^n$、$\sum_{i=1}^{n}$ 等
+6. 化学方程式使用规范格式，如 $2H_2 + O_2 \\rightarrow 2H_2O$
+7. 直接返回内容，不要添加任何解释或说明文字
 
 【重要说明】
 - 如果图片中包含"答案："、"解："、"解析："等文字，这些属于答案/解析部分，不是题目内容
@@ -49,7 +50,10 @@ export class AiService {
 - 题目内容应该只包含题目本身和选项，不要包含解题过程
 
 【输出格式】
-使用三个 Markdown 标题分隔：
+使用四个 Markdown 标题分隔：
+
+## 学科
+（学科名称，如：数学）
 
 ## 题目内容
 （题目原文，含选项）
@@ -188,12 +192,14 @@ export class AiService {
 
     // 解析完整识别的返回内容
     if (targetType === 'content' && (instruction?.includes('全部') || instruction?.includes('完整'))) {
-      // 解析 ## 题目内容 / ## 答案 / ## 解析 格式
+      // 解析 ## 学科 / ## 题目内容 / ## 答案 / ## 解析 格式
+      const subjectMatch = resultText.match(/##\s*学科\s*\n([\s\S]*?)(?=##\s*题目内容\s*\n|$)/);
       const contentMatch = resultText.match(/##\s*题目内容\s*\n([\s\S]*?)(?=##\s*答案\s*\n|$)/);
       const answerMatch = resultText.match(/##\s*答案\s*\n([\s\S]*?)(?=##\s*解析\s*\n|$)/);
       const analysisMatch = resultText.match(/##\s*解析\s*\n([\s\S]*)/);
 
       return {
+        subject: subjectMatch?.[1]?.trim() || null,
         content: contentMatch?.[1]?.trim() || null,
         answer: answerMatch?.[1]?.trim() || null,
         analysis: analysisMatch?.[1]?.trim() || null,

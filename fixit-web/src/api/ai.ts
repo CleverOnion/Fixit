@@ -1,6 +1,7 @@
 import axios from './index';
 
 export interface RecognizeQuestionResponse {
+  subject?: string | null;
   content: string;
   answer?: string;
   analysis?: string;

@@ -24,6 +24,7 @@ export class RecognizeQuestionDto {
 }
 
 export class RecognizeQuestionResponse {
+  subject?: string | null;
   content?: string | null;
   answer?: string | null;
   analysis?: string | null;

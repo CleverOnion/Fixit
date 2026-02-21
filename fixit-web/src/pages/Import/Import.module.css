@@ -358,6 +358,41 @@
   color: #ffffff;
 }
 
+/* AI-detected subject style */
+.subjectPill.aiDetected {
+  position: relative;
+  animation: aiPulse 2s ease-in-out infinite;
+}
+
+@keyframes aiPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.35), 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.35), 0 0 0 6px rgba(255, 107, 107, 0);
+  }
+}
+
+/* AI badge icon */
+.aiBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* New subject label */
+.aiNewLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  margin-left: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
 .subjectCustomInput {
   display: inline-flex;
   align-items: center;
