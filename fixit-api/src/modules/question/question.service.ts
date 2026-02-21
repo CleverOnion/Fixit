@@ -29,6 +29,7 @@ export class QuestionService {
         content: dto.content,
         answer: dto.answer,
         analysis: dto.analysis,
+        remark: dto.remark,
         subject: dto.subject,
         userId,
         tags: tagConnect.length > 0
@@ -174,6 +175,7 @@ export class QuestionService {
         content: dto.content,
         answer: dto.answer,
         analysis: dto.analysis,
+        remark: dto.remark,
         subject: dto.subject,
         masteryLevel: dto.masteryLevel,
       },
@@ -451,6 +453,7 @@ export class QuestionService {
         content: q.content,
         answer: q.answer,
         analysis: q.analysis,
+        remark: q.remark,
         images: q.images,
         subject: q.subject,
         tags: q.tags.map((t) => t.tag.name),
@@ -473,6 +476,7 @@ export class QuestionService {
         content: string;
         answer: string;
         analysis?: string;
+        remark?: string;
         images: string[];
         subject: string;
         tags: string[];
@@ -547,6 +551,7 @@ export class QuestionService {
             content: q.content,
             answer: q.answer,
             analysis: q.analysis,
+            remark: q.remark,
             images: q.images || [],
             subject: q.subject,
             userId,

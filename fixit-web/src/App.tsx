@@ -15,6 +15,7 @@ const HomePage = lazy(() => import('./pages/Home'));
 const ImportPage = lazy(() => import('./pages/Import'));
 const QuestionsPage = lazy(() => import('./pages/Questions'));
 const EditQuestionPage = lazy(() => import('./pages/Questions/Edit'));
+const PracticeHistoryPage = lazy(() => import('./pages/PracticeHistory'));
 const PracticePage = lazy(() => import('./pages/Practice'));
 const StatsPage = lazy(() => import('./pages/Stats'));
 const InvitationPage = lazy(() => import('./pages/Invitation'));
@@ -151,6 +152,7 @@ export default function App() {
                 <Route path="/import" element={<ImportPage />} />
                 <Route path="/questions" element={<QuestionsPage />} />
                 <Route path="/questions/:id" element={<EditQuestionPage />} />
+                <Route path="/questions/:questionId/history" element={<PracticeHistoryPage />} />
                 <Route path="/practice" element={<PracticePage />} />
                 <Route path="/stats" element={<StatsPage />} />
                 <Route path="/invitation" element={<InvitationPage />} />

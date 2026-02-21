@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Popconfirm, message, Modal, Empty, Button, Checkbox, Upload, Switch, Slider, Row, Col } from 'antd';
+import { Popconfirm, message, Modal, Empty, Button, Checkbox, Upload, Switch, Slider, Row, Col, Input } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -19,14 +19,13 @@ import {
   HistoryOutlined,
 } from '@ant-design/icons';
 import { questionApi, ExportData, Question } from '../../api/question';
-import { reviewApi, ReviewStatus, QuestionPracticeHistoryItem, QuestionPracticeStats } from '../../api/review';
+import { reviewApi, ReviewStatus } from '../../api/review';
 import { tagApi, Tag } from '../../api/tag';
 import { useUserStore } from '../../stores/userStore';
 import { MarkdownPreview } from '../../components/MarkdownEditor';
 import { ExportModal } from '../../components/PdfGenerator/ExportModal';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import styles from './Questions.module.css';
-import ph from './PracticeHistory.module.css';
 
 const PAGE_SIZE = 10;
 
@@ -74,123 +73,6 @@ function formatDate(dateStr: string): string {
     month: '2-digit',
     day: '2-digit',
   });
-}
-
-// 格式化为 YYYY-MM-DD HH:mm:ss 用于练习历史
-function formatDateTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-}
-
-// 横向拖拽组件 - 带惯性和自动加载
-function HorizontalDrag({
-  cards,
-  onReachEnd,
-}: {
-  cards: React.ReactNode;
-  onReachEnd?: () => void;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
-  const lastX = useRef(0);
-  const lastTime = useRef(0);
-  const velocity = useRef(0);
-  const animationRef = useRef<number>(0);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    isDragging.current = true;
-    startX.current = e.pageX;
-    scrollLeft.current = containerRef.current.scrollLeft;
-    lastX.current = e.pageX;
-    lastTime.current = Date.now();
-    velocity.current = 0;
-    containerRef.current.style.cursor = 'grabbing';
-    containerRef.current.style.scrollBehavior = 'auto';
-    e.preventDefault();
-  }, []);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current || !containerRef.current) return;
-
-    const now = Date.now();
-    const deltaX = e.pageX - lastX.current;
-    const deltaTime = now - lastTime.current;
-
-    // 计算速度
-    if (deltaTime > 0) {
-      velocity.current = deltaX / deltaTime;
-    }
-
-    lastX.current = e.pageX;
-    lastTime.current = now;
-
-    const walk = (e.pageX - startX.current) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft.current - walk;
-  }, []);
-
-  // 惯性滚动
-  const momentumScroll = useCallback(() => {
-    if (!containerRef.current) return;
-
-    const decay = 0.95;
-    const minVelocity = 0.5;
-
-    velocity.current *= decay;
-
-    if (Math.abs(velocity.current) > minVelocity) {
-      containerRef.current.scrollLeft -= velocity.current * 15;
-      animationRef.current = requestAnimationFrame(momentumScroll);
-    }
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    if (!containerRef.current) return;
-    isDragging.current = false;
-    containerRef.current.style.cursor = 'grab';
-
-    // 启动惯性滚动
-    animationRef.current = requestAnimationFrame(momentumScroll);
-  }, [momentumScroll]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (!containerRef.current) return;
-    isDragging.current = false;
-    containerRef.current.style.cursor = 'grab';
-
-    // 启动惯性滚动
-    animationRef.current = requestAnimationFrame(momentumScroll);
-  }, [momentumScroll]);
-
-  // 自动加载更多
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current || !onReachEnd) return;
-
-    const el = containerRef.current;
-    const { scrollWidth, clientWidth, scrollLeft } = el;
-
-    // 当滚动到右边 50px 内时触发加载
-    if (scrollWidth - scrollLeft - clientWidth < 50) {
-      onReachEnd();
-    }
-  }, [onReachEnd]);
-
-  return (
-    <div
-      ref={containerRef}
-      className={ph.phCards}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onScroll={handleScroll}
-    >
-      {cards}
-    </div>
-  );
 }
 
 function generatePaginationRange(
@@ -269,6 +151,7 @@ export default function QuestionsPage() {
   const [practiceModalVisible, setPracticeModalVisible] = useState(false);
   const [practiceQuestion, setPracticeQuestion] = useState<Question | null>(null);
   const [practiceStatus, setPracticeStatus] = useState<ReviewStatus>('FUZZY');
+  const [practiceNote, setPracticeNote] = useState('');
   const [practiceSubmitting, setPracticeSubmitting] = useState(false);
 
   // 选择模式状态
@@ -294,16 +177,6 @@ export default function QuestionsPage() {
     maxMasteryLevel: undefined as number | undefined,
   });
   const [randomPickLoading, setRandomPickLoading] = useState(false);
-
-  // 练习历史弹窗状态
-  const [practiceHistoryModalVisible, setPracticeHistoryModalVisible] = useState(false);
-  const [practiceHistoryQuestionId, setPracticeHistoryQuestionId] = useState<string | null>(null);
-  const [practiceHistoryQuestionSubject, setPracticeHistoryQuestionSubject] = useState<string>('');
-  const [practiceStats, setPracticeStats] = useState<QuestionPracticeStats | null>(null);
-  const [practiceHistory, setPracticeHistory] = useState<QuestionPracticeHistoryItem[]>([]);
-  const [practiceHistoryLoading, setPracticeHistoryLoading] = useState(false);
-  const [practiceHistoryPage, setPracticeHistoryPage] = useState(1);
-  const [practiceHistoryTotal, setPracticeHistoryTotal] = useState(0);
 
   const totalPages = useMemo(() => Math.ceil(total / PAGE_SIZE), [total]);
   const paginationRange = useMemo(
@@ -378,6 +251,7 @@ export default function QuestionsPage() {
   const handleOpenPractice = (question: Question) => {
     setPracticeQuestion(question);
     setPracticeStatus('FUZZY');
+    setPracticeNote('');
     setPracticeModalVisible(true);
   };
 
@@ -390,10 +264,12 @@ export default function QuestionsPage() {
       await reviewApi.manualReview({
         questionId: practiceQuestion.id,
         status: practiceStatus,
+        note: practiceNote || undefined,
       });
 
       message.success('已记录练习结果');
       setPracticeModalVisible(false);
+      setPracticeNote('');
 
       // 更新本地题目的掌握程度
       const newMastery =
@@ -411,48 +287,10 @@ export default function QuestionsPage() {
     }
   };
 
-  // 打开练习历史
-  const handleOpenPracticeHistory = useCallback(async (question: Question) => {
-    setPracticeHistoryQuestionId(question.id);
-    setPracticeHistoryQuestionSubject(question.subject);
-    setPracticeHistoryModalVisible(true);
-    setPracticeHistoryPage(1);
-    setPracticeHistoryLoading(true);
-
-    try {
-      // 获取统计数据
-      const statsRes = await reviewApi.getQuestionPracticeStats(question.id);
-      setPracticeStats(statsRes.data);
-
-      // 获取历史记录
-      const historyRes = await reviewApi.getQuestionPracticeHistory(question.id, 1, 10);
-      setPracticeHistory(historyRes.data.data);
-      setPracticeHistoryTotal(historyRes.data.total);
-    } catch (error) {
-      message.error('获取练习历史失败');
-    } finally {
-      setPracticeHistoryLoading(false);
-    }
-  }, []);
-
-  // 加载更多练习历史
-  const handleLoadMorePracticeHistory = useCallback(async () => {
-    if (!practiceHistoryQuestionId || practiceHistoryLoading) return;
-
-    setPracticeHistoryLoading(true);
-    const nextPage = practiceHistoryPage + 1;
-
-    try {
-      const res = await reviewApi.getQuestionPracticeHistory(practiceHistoryQuestionId, nextPage, 10);
-      setPracticeHistory((prev) => [...prev, ...res.data.data]);
-      setPracticeHistoryPage(nextPage);
-      setPracticeHistoryTotal(res.data.total);
-    } catch (error) {
-      message.error('加载更多历史记录失败');
-    } finally {
-      setPracticeHistoryLoading(false);
-    }
-  }, [practiceHistoryQuestionId, practiceHistoryPage, practiceHistoryLoading]);
+  // 打开练习历史 - 跳转到练习历史页面
+  const handleOpenPracticeHistory = useCallback((question: Question) => {
+    navigate(`/questions/${question.id}/history`);
+  }, [navigate]);
 
   const handleView = (question: Question) => {
     setCurrentQuestion(question);
@@ -915,6 +753,13 @@ export default function QuestionsPage() {
                       )}
                     </div>
                   )}
+                  {/* Remark - 简洁显示 */}
+                  {question.remark && (
+                    <div className={styles.contentRemark}>
+                      <span className={styles.remarkLabel}>备注:</span>
+                      <MarkdownPreview content={question.remark} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Mastery */}
@@ -1206,6 +1051,16 @@ export default function QuestionsPage() {
               </div>
             )}
 
+            {/* Remark */}
+            {currentQuestion.remark && (
+              <div className={styles.modalField}>
+                <span className={styles.modalLabel}>备注</span>
+                <div className={styles.modalRemarkBox}>
+                  <MarkdownPreview content={currentQuestion.remark} />
+                </div>
+              </div>
+            )}
+
             {/* Images */}
             {currentQuestion.images && currentQuestion.images.length > 0 && (
               <div className={styles.modalField}>
@@ -1236,7 +1091,10 @@ export default function QuestionsPage() {
       <Modal
         title="快速刷题"
         open={practiceModalVisible}
-        onCancel={() => setPracticeModalVisible(false)}
+        onCancel={() => {
+          setPracticeModalVisible(false);
+          setPracticeNote('');
+        }}
         footer={null}
         width={560}
         className={styles.practiceModal}
@@ -1282,6 +1140,34 @@ export default function QuestionsPage() {
               <div className={styles.practiceAnswerContent}>
                 <MarkdownPreview content={practiceQuestion.answer} />
               </div>
+            </div>
+
+            {/* Question Remark */}
+            {practiceQuestion.remark && (
+              <div className={styles.practiceRemarkSection}>
+                <div className={styles.practiceRemarkLabel}>
+                  <FileTextOutlined style={{ marginRight: 6 }} />
+                  <span>备注</span>
+                </div>
+                <div className={styles.practiceRemarkContent}>
+                  <MarkdownPreview content={practiceQuestion.remark} />
+                </div>
+              </div>
+            )}
+
+            {/* Practice Note Input */}
+            <div className={styles.practiceNoteSection}>
+              <div className={styles.practiceNoteLabel}>
+                <EditOutlined style={{ marginRight: 6 }} />
+                <span>心得笔记（可选）</span>
+              </div>
+              <Input.TextArea
+                className={styles.practiceNoteInput}
+                placeholder="记录这道题的心得、思考、技巧..."
+                value={practiceNote}
+                onChange={(e) => setPracticeNote(e.target.value)}
+                autoSize={{ minRows: 2, maxRows: 5 }}
+              />
             </div>
 
             {/* Status Selection */}
@@ -1557,87 +1443,6 @@ export default function QuestionsPage() {
               开始抽题
             </Button>
           </div>
-        </div>
-      </Modal>
-
-      {/* Practice History - Horizontal Flow */}
-      <Modal
-        title={
-          <div className={ph.phHeader}>
-            <div className={ph.phTitleRow}>
-              <div className={ph.phIcon}>
-                <HistoryOutlined style={{ color: '#9c9488', fontSize: 18 }} />
-              </div>
-              <span>练习历程</span>
-            </div>
-            <span className={ph.phSubject}>{practiceHistoryQuestionSubject}</span>
-          </div>
-        }
-        open={practiceHistoryModalVisible}
-        onCancel={() => setPracticeHistoryModalVisible(false)}
-        footer={null}
-        width={640}
-        className={ph.phModal}
-      >
-        {/* Stats Bar */}
-        {practiceStats && (
-          <div className={ph.phStats}>
-            <div className={ph.phStat}>
-              <div className={ph.phStatNum}>{practiceStats.totalPracticeCount}</div>
-              <div className={ph.phStatLabel}>Total</div>
-            </div>
-            <div className={ph.phStat}>
-              <div className={ph.phStatNum}>{practiceStats.forgottenCount}</div>
-              <div className={ph.phStatLabel}>Forgot</div>
-            </div>
-            <div className={ph.phStat}>
-              <div className={ph.phStatNum}>{practiceStats.masteredCount}</div>
-              <div className={ph.phStatLabel}>Mastered</div>
-            </div>
-          </div>
-        )}
-
-        {/* Horizontal Cards with Drag */}
-        <div className={ph.phFlow}>
-          <div className={ph.phFlowHeader}>
-            <span className={ph.phFlowTitle}>Records</span>
-            {practiceHistoryTotal > 0 && <span className={ph.phFlowCount}>{practiceHistoryTotal}</span>}
-          </div>
-
-          {practiceHistoryLoading && practiceHistory.length === 0 ? (
-            <div className={ph.phLoading} />
-          ) : practiceHistory.length === 0 ? (
-            <div className={ph.phEmpty}>
-              <div className={ph.phEmptyIcon}>
-                <HistoryOutlined />
-              </div>
-              <div className={ph.phEmptyTitle}>暂无记录</div>
-              <div className={ph.phEmptyDesc}>开始练习以记录学习轨迹</div>
-            </div>
-          ) : (
-            <>
-              <HorizontalDrag
-                cards={practiceHistory.map((item) => (
-                  <div key={item.id} className={ph.phCard}>
-                    <div
-                      className={`${ph.phCardStatus} ${
-                        item.status === 'FORGOTTEN'
-                          ? ph.phCardStatusForgot
-                          : item.status === 'FUZZY'
-                          ? ph.phCardStatusFuzzy
-                          : ph.phCardStatusMastered
-                      }`}
-                    >
-                      {item.status === 'FORGOTTEN' ? 'Forgot' : item.status === 'FUZZY' ? 'Fuzzy' : 'Mastered'}
-                    </div>
-                    <div className={ph.phCardTime}>{formatDateTime(item.createdAt)}</div>
-                    {item.note && <div className={ph.phCardNote}>{item.note}</div>}
-                  </div>
-                ))}
-                onReachEnd={practiceHistory.length < practiceHistoryTotal ? handleLoadMorePracticeHistory : undefined}
-              />
-            </>
-          )}
         </div>
       </Modal>
     </div>

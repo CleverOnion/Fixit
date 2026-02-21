@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message, Modal, Row, Col, Button, Tooltip, Progress, Slider } from 'antd';
+import { message, Modal, Row, Col, Button, Tooltip, Progress, Slider, Input } from 'antd';
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
@@ -17,6 +17,7 @@ import {
   UnorderedListOutlined,
   LeftOutlined,
   RightOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { MarkdownPreview } from '../../components/MarkdownEditor';
@@ -71,6 +72,11 @@ export default function PracticePage() {
   });
 
   const [questionPanelVisible, setQuestionPanelVisible] = useState(false);
+
+  // 刷题心得
+  const [practiceNote, setPracticeNote] = useState('');
+  const [noteExpanded, setNoteExpanded] = useState(false);
+  const noteInputRef = useRef<any>(null);
 
   const handleReviewRef = useRef<((status: ReviewStatus) => void) | null>(null);
 
@@ -166,6 +172,7 @@ export default function PracticePage() {
         const res = await reviewApi.submitPracticeAnswer(session.id, {
           questionId: currentQuestion.id,
           status,
+          note: practiceNote || undefined,
         });
 
         // 增加今日统计
@@ -175,7 +182,9 @@ export default function PracticePage() {
           // 轮次完成
           setSession({ ...res.data.session, status: 'COMPLETED' });
         } else {
-          // 进入下一题
+          // 进入下一题，清除心得并重置状态
+          setPracticeNote('');
+          setNoteExpanded(false);
           setSession(res.data.session);
           setShowAnswer(false);
           setCardKey((k) => k + 1);
@@ -187,7 +196,7 @@ export default function PracticePage() {
         setSubmitting(false);
       }
     },
-    [session, currentQuestion, submitting, incrementCount]
+    [session, currentQuestion, submitting, practiceNote, incrementCount]
   );
 
   handleReviewRef.current = handleReview;
@@ -196,6 +205,29 @@ export default function PracticePage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (submitting) return;
+
+      // Ctrl+Enter: 提交带心得的评级
+      if (e.ctrlKey && e.key === 'Enter' && showAnswer && isActive) {
+        e.preventDefault();
+        const review = handleReviewRef.current;
+        if (review) review('MASTERED');
+        return;
+      }
+
+      // n 键：打开/关闭心得输入框
+      if (e.key === 'n' || e.key === 'N') {
+        // 如果当前焦点在输入框中，则不处理
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement?.tagName === 'TEXTAREA' || activeElement?.tagName === 'INPUT') {
+          return;
+        }
+        e.preventDefault();
+        setNoteExpanded(true);
+        // 延迟聚焦到输入框
+        setTimeout(() => noteInputRef.current?.focus(), 100);
+        return;
+      }
+
       const review = handleReviewRef.current;
       if (!review) return;
 
@@ -240,6 +272,8 @@ export default function PracticePage() {
         const res = await reviewApi.navigateQuestion(session.id, direction);
         setSession(res.data);
         setShowAnswer(false);
+        setPracticeNote('');
+        setNoteExpanded(false);
       } catch (error) {
         message.error('切换失败');
       }
@@ -257,6 +291,8 @@ export default function PracticePage() {
         setSession(res.data);
         setShowAnswer(false);
         setQuestionPanelVisible(false);
+        setPracticeNote('');
+        setNoteExpanded(false);
       } catch (error) {
         message.error('跳转失败');
       }
@@ -664,6 +700,50 @@ export default function PracticePage() {
               </div>
             )}
 
+            {/* Question Remark (题目备注 - 持久化) */}
+            {currentQuestion?.remark && (
+              <div className={styles.remarkSection}>
+                <h3 className={styles.sectionTitle}>
+                  <FileTextOutlined style={{ marginRight: 8 }} />
+                  备注
+                </h3>
+                <div className={styles.remarkContent}>
+                  <MarkdownPreview content={currentQuestion.remark} />
+                </div>
+              </div>
+            )}
+
+            {/* Practice Note (刷题心得) */}
+            <div className={styles.noteSection}>
+              <div className={styles.noteHeader} onClick={() => setNoteExpanded(!noteExpanded)}>
+                <span className={styles.noteTitle}>
+                  <FileTextOutlined style={{ marginRight: 8 }} />
+                  心得笔记
+                </span>
+                <span className={styles.noteToggle}>
+                  {noteExpanded ? '收起' : '展开'}
+                </span>
+              </div>
+              {noteExpanded && (
+                <div className={styles.noteContent}>
+                  <Input.TextArea
+                    ref={noteInputRef}
+                    className={styles.noteInput}
+                    placeholder="记录这道题的心得、思考、技巧..."
+                    value={practiceNote}
+                    onChange={(e) => setPracticeNote(e.target.value)}
+                    autoSize={{ minRows: 2, maxRows: 6 }}
+                  />
+                  {practiceNote && (
+                    <div className={styles.notePreview}>
+                      <span className={styles.notePreviewLabel}>预览：</span>
+                      <MarkdownPreview content={practiceNote} />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Review Buttons */}
             {showAnswer && (
               <div className={styles.reviewSection}>
@@ -709,6 +789,10 @@ export default function PracticePage() {
           <span className={styles.hintLabel}>显示答案</span>
         </span>
         <span className={styles.hintItem}>
+          <kbd className={styles.kbd}>N</kbd>
+          <span className={styles.hintLabel}>心得</span>
+        </span>
+        <span className={styles.hintItem}>
           <kbd className={styles.kbd}>1</kbd>
           <kbd className={styles.kbd}>2</kbd>
           <kbd className={styles.kbd}>3</kbd>
@@ -718,6 +802,10 @@ export default function PracticePage() {
           <kbd className={styles.kbd}>←</kbd>
           <kbd className={styles.kbd}>→</kbd>
           <span className={styles.hintLabel}>快速评级</span>
+        </span>
+        <span className={styles.hintItem}>
+          <kbd className={styles.kbd}>Ctrl</kbd>+<kbd className={styles.kbd}>Enter</kbd>
+          <span className={styles.hintLabel}>提交</span>
         </span>
       </div>
     </div>

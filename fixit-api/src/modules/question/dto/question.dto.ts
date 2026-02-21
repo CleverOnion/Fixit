@@ -12,6 +12,10 @@ export class CreateQuestionDto {
   @IsString()
   analysis?: string;
 
+  @IsOptional()
+  @IsString()
+  remark?: string;
+
   @IsString()
   subject: string;
 
@@ -33,6 +37,10 @@ export class UpdateQuestionDto {
   @IsOptional()
   @IsString()
   analysis?: string;
+
+  @IsOptional()
+  @IsString()
+  remark?: string;
 
   @IsOptional()
   @IsString()
@@ -130,6 +138,7 @@ export interface ExportedQuestion {
   content: string;
   answer: string;
   analysis?: string;
+  remark?: string;
   images: string[];
   subject: string;
   tags: string[];

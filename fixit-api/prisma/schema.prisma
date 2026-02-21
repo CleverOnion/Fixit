@@ -36,6 +36,7 @@ model Question {
   content       String    @db.Text      // 题目内容 (Markdown)
   answer        String    @db.Text      // 答案 (Markdown)
   analysis      String?   @db.Text      // 解析 (Markdown)
+  remark        String?   @db.Text      // 题目备注
   images        String[]                // 图片 URL 列表
 
   // 元数据

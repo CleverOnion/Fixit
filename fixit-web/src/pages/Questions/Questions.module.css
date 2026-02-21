@@ -577,6 +577,31 @@
   border: 1px solid var(--fi-border-subtle, #2a2a2d);
 }
 
+.contentRemark {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 107, 107, 0.06);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--fi-text-tertiary, #86868b);
+  line-height: 1.4;
+}
+
+.remarkLabel {
+  color: var(--fi-text-tertiary, #86868b);
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.contentRemark :global(.markdown-preview) {
+  color: var(--fi-text-secondary, #a1a1a6);
+  display: inline;
+  max-height: 32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Mastery Level */
 .cellMastery {
   display: flex;
@@ -1289,6 +1314,19 @@
   border-color: rgba(16, 185, 129, 0.2);
 }
 
+.modalRemarkBox {
+  padding: 16px;
+  background: var(--fi-bg-card, #1a1a1b);
+  border-radius: var(--fi-radius-md, 10px);
+  border: 1px solid var(--fi-border-subtle, #2a2a2d);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--fi-text-primary, #f5f5f7);
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-left: 3px solid var(--fi-primary, #ff6b6b);
+}
+
 .modalImages {
   display: flex;
   flex-wrap: wrap;
@@ -1482,6 +1520,73 @@
 
 .practiceAnswerContent :global(.markdown-preview) {
   color: var(--fi-text-secondary, #a1a1a6);
+}
+
+/* Question remark section */
+.practiceRemarkSection {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 107, 107, 0.06);
+  border-radius: var(--fi-radius-md, 10px);
+  border: 1px solid rgba(255, 107, 107, 0.15);
+}
+
+.practiceRemarkLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fi-primary, #ff6b6b);
+  margin-bottom: 8px;
+}
+
+.practiceRemarkContent {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fi-text-secondary, #a1a1a6);
+}
+
+.practiceRemarkContent :global(.markdown-preview) {
+  color: var(--fi-text-secondary, #a1a1a6);
+}
+
+/* Practice note input section */
+.practiceNoteSection {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(96, 165, 250, 0.06);
+  border-radius: var(--fi-radius-md, 10px);
+  border: 1px solid rgba(96, 165, 250, 0.15);
+}
+
+.practiceNoteLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fi-info, #60a5fa);
+  margin-bottom: 8px;
+}
+
+.practiceNoteInput {
+  background: var(--fi-bg-surface, #232326) !important;
+  border: 1px solid var(--fi-border-subtle, #2a2a2d) !important;
+  border-radius: var(--fi-radius-sm, 6px) !important;
+  color: var(--fi-text-primary, #f5f5f7) !important;
+  font-size: 14px !important;
+  resize: none !important;
+  transition: border-color var(--fi-transition-fast), box-shadow var(--fi-transition-fast);
+}
+
+.practiceNoteInput:focus {
+  border-color: var(--fi-info, #60a5fa) !important;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1) !important;
+}
+
+.practiceNoteInput::placeholder {
+  color: var(--fi-text-tertiary, #6b6b70);
 }
 
 /* Status selection */

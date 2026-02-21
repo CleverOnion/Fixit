@@ -251,6 +251,7 @@ export function QuestionForm({ mode, initialData, onSuccess }: QuestionFormProps
         content: values.content,
         answer: values.answer,
         analysis: values.analysis,
+        remark: values.remark,
         images: images.filter((img) => img.key).map((img) => img.url),
         tags: values.tags || [],
       };
@@ -500,6 +501,19 @@ export function QuestionForm({ mode, initialData, onSuccess }: QuestionFormProps
                 />
               </Form.Item>
             </Card>
+
+            {/* 备注 */}
+            <Card title="备注（可选）">
+              <Form.Item name="remark">
+                <MarkdownEditor
+                  value={form.getFieldValue('remark') || ''}
+                  onChange={(value) => form.setFieldValue('remark', value)}
+                  label="备注"
+                  height={120}
+                  placeholder="请输入备注（可选），如：这道题的易错点、个人理解等"
+                />
+              </Form.Item>
+            </Card>
           </div>
 
           {/* 右侧：预览和操作 */}
@@ -531,6 +545,15 @@ export function QuestionForm({ mode, initialData, onSuccess }: QuestionFormProps
                   <div>
                     <h3 className="text-lg font-medium mb-2">解析</h3>
                     <MarkdownPreview content={form.getFieldValue('analysis')} />
+                  </div>
+                </>
+              )}
+              {form.getFieldValue('remark') && (
+                <>
+                  <Divider />
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">备注</h3>
+                    <MarkdownPreview content={form.getFieldValue('remark')} />
                   </div>
                 </>
               )}

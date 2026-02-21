@@ -5,6 +5,7 @@ export interface Question {
   content: string;
   answer: string;
   analysis?: string;
+  remark?: string;
   images?: string[];
   subject: string;
   masteryLevel: number;
@@ -19,6 +20,7 @@ export interface CreateQuestionParams {
   content: string;
   answer: string;
   analysis?: string;
+  remark?: string;
   images?: string[];
   subject: string;
   tags?: string[];
@@ -28,6 +30,7 @@ export interface UpdateQuestionParams {
   content?: string;
   answer?: string;
   analysis?: string;
+  remark?: string;
   images?: string[];
   subject?: string;
   masteryLevel?: number;
@@ -66,6 +69,7 @@ export interface ExportedQuestion {
   content: string;
   answer: string;
   analysis?: string;
+  remark?: string;
   images: string[];
   subject: string;
   tags: string[];

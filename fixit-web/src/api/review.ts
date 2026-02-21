@@ -126,6 +126,7 @@ export interface PracticeQuestion {
   content: string;
   answer: string;
   analysis?: string;
+  remark?: string;
   images: string[];
   subject: string;
   masteryLevel: number;
