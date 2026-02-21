@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-02-21
+
+### Added
+
+- **快速刷题答案隐藏** - 答案默认隐藏，按空格键或点击答案区域显示
+- **键盘快捷键增强** - 空格键切换答案显示，数字键选择掌握程度，Enter提交，Escape关闭
+
+### Changed
+
+- 优化快速刷题交互体验，避免直接看到答案
+
 ## [1.1.0] - 2026-02-21
 
 ### Added

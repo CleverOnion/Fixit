@@ -1512,6 +1512,13 @@
   margin-bottom: 8px;
 }
 
+.practiceAnswerHint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--fi-text-tertiary, #6b6b70);
+  margin-left: 4px;
+}
+
 .practiceAnswerContent {
   font-size: 14px;
   line-height: 1.6;

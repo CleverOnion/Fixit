@@ -152,6 +152,7 @@ export default function QuestionsPage() {
   const [practiceQuestion, setPracticeQuestion] = useState<Question | null>(null);
   const [practiceStatus, setPracticeStatus] = useState<ReviewStatus>('FUZZY');
   const [practiceNote, setPracticeNote] = useState('');
+  const [practiceAnswerVisible, setPracticeAnswerVisible] = useState(false);
   const [practiceSubmitting, setPracticeSubmitting] = useState(false);
 
   // 选择模式状态
@@ -252,11 +253,12 @@ export default function QuestionsPage() {
     setPracticeQuestion(question);
     setPracticeStatus('FUZZY');
     setPracticeNote('');
+    setPracticeAnswerVisible(false); // 重置答案隐藏状态
     setPracticeModalVisible(true);
   };
 
   // 提交刷题结果
-  const handlePracticeSubmit = async () => {
+  const handlePracticeSubmit = useCallback(async () => {
     if (!practiceQuestion) return;
 
     setPracticeSubmitting(true);
@@ -285,7 +287,48 @@ export default function QuestionsPage() {
     } finally {
       setPracticeSubmitting(false);
     }
-  };
+  }, [practiceQuestion, practiceStatus, practiceNote]);
+
+  // 快速刷题 - 键盘事件监听
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!practiceModalVisible) return;
+
+      // 空格键切换答案显示
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setPracticeAnswerVisible((prev) => !prev);
+      }
+
+      // 数字键选择状态
+      if (e.key === '1') {
+        e.preventDefault();
+        setPracticeStatus('FORGOTTEN');
+      } else if (e.key === '2') {
+        e.preventDefault();
+        setPracticeStatus('FUZZY');
+      } else if (e.key === '3') {
+        e.preventDefault();
+        setPracticeStatus('MASTERED');
+      }
+
+      // Enter 键提交
+      if (e.key === 'Enter' && !practiceSubmitting) {
+        e.preventDefault();
+        handlePracticeSubmit();
+      }
+
+      // Escape 键关闭
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setPracticeModalVisible(false);
+        setPracticeNote('');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [practiceModalVisible, practiceSubmitting, handlePracticeSubmit, practiceStatus]);
 
   // 打开练习历史 - 跳转到练习历史页面
   const handleOpenPracticeHistory = useCallback((question: Question) => {
@@ -1130,16 +1173,25 @@ export default function QuestionsPage() {
             </div>
 
             {/* Answer Toggle */}
-            <div className={styles.practiceAnswerSection}>
+            <div
+              className={styles.practiceAnswerSection}
+              onClick={() => setPracticeAnswerVisible(!practiceAnswerVisible)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.practiceAnswerLabel}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 <span>答案</span>
+                <span className={styles.practiceAnswerHint}>
+                  {practiceAnswerVisible ? '（点击隐藏）' : '（按空格或点击显示）'}
+                </span>
               </div>
-              <div className={styles.practiceAnswerContent}>
-                <MarkdownPreview content={practiceQuestion.answer} />
-              </div>
+              {practiceAnswerVisible && (
+                <div className={styles.practiceAnswerContent}>
+                  <MarkdownPreview content={practiceQuestion.answer} />
+                </div>
+              )}
             </div>
 
             {/* Question Remark */}
@@ -1205,9 +1257,11 @@ export default function QuestionsPage() {
             {/* Shortcut Hint */}
             <div className={styles.practiceShortcuts}>
               <span>快捷键:</span>
+              <kbd>空格</kbd> 显示/隐藏答案
               <kbd>1</kbd> 没做对
               <kbd>2</kbd> 有点模糊
               <kbd>3</kbd> 完全掌握
+              <kbd>Enter</kbd> 确认
             </div>
 
             {/* Actions */}
