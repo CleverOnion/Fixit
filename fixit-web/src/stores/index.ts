@@ -6,3 +6,4 @@ export { useQuestionStore } from './questionStore';
 export { useUIStore } from './uiStore';
 export { usePracticeStore } from './practiceStore';
 export { useStatsStore } from './statsStore';
+export { useTodayStore } from './todayStore';

@@ -6,6 +6,9 @@ import { devtools, persist } from 'zustand/middleware';
 import { Question } from '../api/question';
 import { ReviewFilterParams } from '../api/review';
 
+// Storage 版本控制
+const STORAGE_VERSION = 1;
+
 type PracticeMode = 'ebbinghaus' | 'random';
 
 // 轮次状态
@@ -122,6 +125,7 @@ export const usePracticeStore = create<PracticeState>()(
       }),
       {
         name: 'practice-storage',
+        version: STORAGE_VERSION,
         partialize: (state) => ({
           practiceMode: state.practiceMode,
           questions: state.questions,

@@ -19,8 +19,12 @@ export default function LoginPage() {
       await login(values.email, values.password);
       message.success('登录成功');
       navigate('/');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || '登录失败，请稍后重试';
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+          || (error as { response?: { data?: { error?: string } } })?.response?.data?.error
+          || '登录失败，请稍后重试';
       message.error(errorMessage);
     } finally {
       setLoading(false);
@@ -37,7 +41,7 @@ export default function LoginPage() {
         {/* Logo 区域 */}
         <div className={styles.logoSection}>
           <div className={styles.logoIcon}>
-            <svg viewBox="0 0 32 32" fill="none">
+            <svg viewBox="0 0 32 32" fill="none" role="img" aria-label="Fixit Logo">
               <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
               <path d="M10 16L14 20L22 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               <defs>
@@ -66,30 +70,36 @@ export default function LoginPage() {
         >
           <Form.Item
             name="email"
+            label={<span className={styles.formLabel}>邮箱地址</span>}
             rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}
           >
             <div className={styles.inputWrapper}>
-              <MailOutlined className={styles.inputIcon} />
+              <MailOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="email"
                 placeholder="邮箱地址"
                 autoComplete="email"
+                aria-label="邮箱地址"
+                id="login-email"
               />
             </div>
           </Form.Item>
 
           <Form.Item
             name="password"
+            label={<span className={styles.formLabel}>密码</span>}
             rules={[{ required: true, message: '请输入密码' }]}
           >
             <div className={styles.inputWrapper}>
-              <LockOutlined className={styles.inputIcon} />
+              <LockOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="password"
                 placeholder="密码"
                 autoComplete="current-password"
+                aria-label="密码"
+                id="login-password"
               />
             </div>
           </Form.Item>
@@ -107,7 +117,7 @@ export default function LoginPage() {
               {loading ? (
                 <span className={styles.loadingState}>
                   <span className={styles.spinner} />
-                  登录中...
+                  登录中…
                 </span>
               ) : (
                 '登录'

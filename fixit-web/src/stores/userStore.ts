@@ -2,6 +2,23 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi, User } from '../api/auth';
 
+// Storage 版本控制
+const STORAGE_VERSION = 1;
+
+// 旧版本数据迁移
+const migratePersistedState = (persistedState: unknown, version: number) => {
+  const state = persistedState as Partial<UserState>;
+  if (version === 0) {
+    // 从 v0 迁移到 v1
+    // 示例: 重命名字段、转换数据格式等
+    return {
+      ...state,
+      // 添加新字段或转换旧字段
+    };
+  }
+  return state;
+};
+
 interface UserState {
   user: User | null;
   token: string | null;
@@ -59,7 +76,9 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-storage',
+      version: STORAGE_VERSION,
       partialize: (state) => ({ token: state.token, user: state.user, isLoggedIn: state.isLoggedIn }),
+      migrate: migratePersistedState,
     },
   ),
 );

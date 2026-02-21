@@ -1,12 +1,10 @@
-import { useEffect, lazy, Suspense, useState, useCallback } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { Layout } from './components/Layout';
 import { ErrorBoundary } from './components/Common';
-import { useUserStore } from './stores/userStore';
-import { useUIStore } from './stores/uiStore';
+import { useUserStore, useTodayStore, useUIStore } from './stores';
 import { Loading } from './components/Common';
-import { reviewApi } from './api/review';
 
 // 懒加载页面组件 - 代码分割优化
 const LoginPage = lazy(() => import('./pages/Login'));
@@ -44,16 +42,8 @@ function AuthInitializer() {
 
 function PrivateOutlet() {
   const isLoggedIn = useUserStore((state) => state.isLoggedIn);
-  const [todayCount, setTodayCount] = useState(0);
-
-  const fetchTodayCount = useCallback(async () => {
-    try {
-      const res = await reviewApi.getTodayCount();
-      setTodayCount(res.data.count);
-    } catch {
-      setTodayCount(0);
-    }
-  }, []);
+  const todayCount = useTodayStore((state) => state.count);
+  const fetchTodayCount = useTodayStore((state) => state.fetchTodayCount);
 
   useEffect(() => {
     if (isLoggedIn) {

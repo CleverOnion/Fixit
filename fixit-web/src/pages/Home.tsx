@@ -43,7 +43,7 @@ function ArrowRightSmallIcon() {
 
 // Animated number display
 function AnimatedNumber({ value, suffix }: { value: number; suffix?: string }) {
-  const [displayed, setDisplayed] = useState(0);
+  const [displayed, setDisplayed] = useState(() => value);
 
   useEffect(() => {
     if (value === 0) {
@@ -156,7 +156,7 @@ export default function HomePage() {
       setStreakData(streakRes.data);
       // 更新 store 中的 questions
       setQuestions(fetchedQuestions);
-    } catch (error) {
+    } catch {
       // Dashboard load failed silently - data will show defaults
     } finally {
       setLoading(false);

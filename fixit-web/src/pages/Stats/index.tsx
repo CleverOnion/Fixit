@@ -294,17 +294,18 @@ function RingChart({
   const circumference = 2 * Math.PI * radius;
 
   // Calculate offsets for each segment
-  let currentOffset = 0;
   const arcs = segments
     .filter((s) => s.percentage > 0)
-    .map((segment) => {
+    .map((segment, index, filteredSegments) => {
       const dashLength = (segment.percentage / 100) * circumference;
+      const previousOffset = filteredSegments
+        .slice(0, index)
+        .reduce((sum, s) => sum + (s.percentage / 100) * circumference, 0);
       const arc = {
         ...segment,
         dashLength,
-        dashOffset: circumference - currentOffset,
+        dashOffset: circumference - previousOffset,
       };
-      currentOffset += dashLength;
       return arc;
     });
 
@@ -545,7 +546,7 @@ export default function StatsPage() {
       setHeatmapData(heatmapRes.data);
       if (streakRes.data) setStreakData(streakRes.data);
       setCalendarData(calendarRes.data);
-    } catch (error) {
+    } catch {
       // Silently handle fetch errors - data will remain in default state
     } finally {
       setLoading(false);

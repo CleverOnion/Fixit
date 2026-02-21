@@ -19,8 +19,9 @@ export default function RegisterPage() {
       await register(values.email, values.password, values.nickname, values.invitationCode);
       message.success('注册成功');
       navigate('/');
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '注册失败');
+    } catch (error) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || '注册失败';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -36,7 +37,7 @@ export default function RegisterPage() {
         {/* Logo 区域 */}
         <div className={styles.logoSection}>
           <div className={styles.logoIcon}>
-            <svg viewBox="0 0 32 32" fill="none">
+            <svg viewBox="0 0 32 32" fill="none" role="img" aria-label="Fixit Logo">
               <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
               <path d="M10 16L14 20L22 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               <defs>
@@ -65,51 +66,61 @@ export default function RegisterPage() {
         >
           <Form.Item
             name="nickname"
+            label={<span className={styles.formLabel}>昵称</span>}
             rules={[{ required: true, message: '请输入昵称' }, { min: 2, message: '昵称至少2个字符' }]}
           >
             <div className={styles.inputWrapper}>
-              <UserOutlined className={styles.inputIcon} />
+              <UserOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="text"
                 placeholder="昵称"
                 autoComplete="nickname"
+                aria-label="昵称"
+                id="register-nickname"
               />
             </div>
           </Form.Item>
 
           <Form.Item
             name="email"
+            label={<span className={styles.formLabel}>邮箱地址</span>}
             rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}
           >
             <div className={styles.inputWrapper}>
-              <MailOutlined className={styles.inputIcon} />
+              <MailOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="email"
                 placeholder="邮箱地址"
                 autoComplete="email"
+                aria-label="邮箱地址"
+                id="register-email"
               />
             </div>
           </Form.Item>
 
           <Form.Item
             name="password"
+            label={<span className={styles.formLabel}>密码</span>}
             rules={[{ required: true, message: '请输入密码' }, { min: 6, message: '密码至少6个字符' }]}
           >
             <div className={styles.inputWrapper}>
-              <LockOutlined className={styles.inputIcon} />
+              <LockOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="password"
                 placeholder="密码"
                 autoComplete="new-password"
+                aria-label="密码"
+                id="register-password"
               />
             </div>
           </Form.Item>
 
           <Form.Item
             name="confirmPassword"
+            label={<span className={styles.formLabel}>确认密码</span>}
             dependencies={['password']}
             rules={[
               { required: true, message: '请确认密码' },
@@ -124,27 +135,32 @@ export default function RegisterPage() {
             ]}
           >
             <div className={styles.inputWrapper}>
-              <LockOutlined className={styles.inputIcon} />
+              <LockOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="password"
                 placeholder="确认密码"
                 autoComplete="new-password"
+                aria-label="确认密码"
+                id="register-confirm-password"
               />
             </div>
           </Form.Item>
 
           <Form.Item
             name="invitationCode"
+            label={<span className={styles.formLabel}>邀请码</span>}
             rules={[{ required: true, message: '请输入邀请码' }]}
           >
             <div className={styles.inputWrapper}>
-              <KeyOutlined className={styles.inputIcon} />
+              <KeyOutlined className={styles.inputIcon} aria-hidden="true" />
               <input
                 className={styles.input}
                 type="text"
                 placeholder="邀请码"
                 autoComplete="off"
+                aria-label="邀请码"
+                id="register-invitation-code"
               />
             </div>
           </Form.Item>
@@ -158,7 +174,7 @@ export default function RegisterPage() {
               {loading ? (
                 <span className={styles.loadingState}>
                   <span className={styles.spinner} />
-                  注册中...
+                  注册中…
                 </span>
               ) : (
                 '注册'

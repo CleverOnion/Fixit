@@ -13,22 +13,23 @@ import { breakpoints } from '../utils/breakpoints'
  * const isMobile = !useMediaQuery('md') // true on screens < 768px
  */
 export function useMediaQuery(breakpointKey: keyof typeof breakpoints): boolean {
-  const [matches, setMatches] = useState(false)
   const breakpoint = breakpoints[breakpointKey]
+
+  // 初始化时使用正确的值，避免在 effect 中 setState
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const query = window.matchMedia(`(min-width: ${breakpoint})`)
+    return query.matches
+  })
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const query = `(min-width: ${breakpoint})`
-    const mediaQuery = window.matchMedia(query)
-
-    // Set initial state
-    setMatches(mediaQuery.matches)
-
+    const query = window.matchMedia(`(min-width: ${breakpoint})`)
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches)
-    mediaQuery.addEventListener('change', handler)
+    query.addEventListener('change', handler)
 
-    return () => mediaQuery.removeEventListener('change', handler)
+    return () => query.removeEventListener('change', handler)
   }, [breakpoint])
 
   return matches

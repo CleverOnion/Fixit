@@ -96,7 +96,9 @@ export default function PracticePage() {
       if (Array.isArray(res.data)) {
         setSubjects(res.data);
       }
-    } catch {}
+    } catch {
+      // Silently fail - subjects are optional
+    }
   }, []);
 
   // 获取标签列表
@@ -106,7 +108,9 @@ export default function PracticePage() {
       if (Array.isArray(res.data)) {
         setTags(res.data);
       }
-    } catch {}
+    } catch {
+      // Silently fail - tags are optional
+    }
   }, []);
 
   // 获取练习轮次状态
@@ -259,7 +263,7 @@ export default function PracticePage() {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showAnswer, submitting, isActive]);
 
@@ -274,7 +278,7 @@ export default function PracticePage() {
         setShowAnswer(false);
         setPracticeNote('');
         setNoteExpanded(false);
-      } catch (error) {
+      } catch {
         message.error('切换失败');
       }
     },
@@ -293,7 +297,7 @@ export default function PracticePage() {
         setQuestionPanelVisible(false);
         setPracticeNote('');
         setNoteExpanded(false);
-      } catch (error) {
+      } catch {
         message.error('跳转失败');
       }
     },

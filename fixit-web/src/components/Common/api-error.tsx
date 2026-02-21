@@ -28,7 +28,7 @@ const defaultConfig: ErrorHandlerConfig = {
 export const handleApiError = (error: unknown, config: ErrorHandlerConfig = defaultConfig): ApiError => {
   const finalConfig = { ...defaultConfig, ...config };
 
-  let apiError: ApiError = {
+  const apiError: ApiError = {
     message: '操作失败，请稍后重试',
   };
 

@@ -5,6 +5,9 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { questionApi, Question, CreateQuestionParams, UpdateQuestionParams, QuestionListParams } from '../api/question';
 
+// Storage 版本控制
+const STORAGE_VERSION = 1;
+
 interface QuestionState {
   // 状态
   questions: Question[];
@@ -159,6 +162,7 @@ export const useQuestionStore = create<QuestionState>()(
       }),
       {
         name: 'question-storage',
+        version: STORAGE_VERSION,
         partialize: (state) => ({
           pagination: state.pagination,
           filters: state.filters,

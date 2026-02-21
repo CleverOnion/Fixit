@@ -1,7 +1,7 @@
 // components/Layout/TopNav.tsx
 // 顶部导航组件 - 简洁现代设计
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, Dropdown, Modal } from 'antd';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useUserStore } from '../../stores/userStore';
 import { ThemeSwitch } from '../Common/ThemeSwitch';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import styles from './TopNav.module.css';
 
 // 导航项配置
@@ -91,6 +92,8 @@ export function TopNav() {
   const navigate = useNavigate();
   const { user, logout } = useUserStore();
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // 快捷键打开搜索
   useEffect(() => {
@@ -100,9 +103,16 @@ export function TopNav() {
         setSearchModalOpen(true);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Modal 打开时聚焦输入框（仅在桌面端）
+  useEffect(() => {
+    if (searchModalOpen && !isMobile && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchModalOpen, isMobile]);
 
   const handleMenuClick = ({ key }: { key: string }) => {
     switch (key) {
@@ -136,8 +146,8 @@ export function TopNav() {
       <header className={styles.nav}>
         <div className={styles.left}>
           {/* Logo */}
-          <Link to="/" className={styles.logo}>
-            <svg className={styles.logoIcon} viewBox="0 0 32 32" fill="none">
+          <Link to="/" className={styles.logo} aria-label="Fixit 首页">
+            <svg className={styles.logoIcon} viewBox="0 0 32 32" fill="none" role="img" aria-label="Fixit Logo">
               <rect width="32" height="32" rx="8" fill="url(#nav-logo-gradient)" />
               <path d="M10 16L14 20L22 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               <defs>
@@ -175,10 +185,11 @@ export function TopNav() {
           <button
             className={styles.searchBtn}
             onClick={() => setSearchModalOpen(true)}
+            aria-label="搜索题目、标签…"
           >
-            <SearchIcon className={styles.searchIcon} />
+            <SearchIcon className={styles.searchIcon} aria-hidden="true" />
             <span className={styles.searchText}>搜索</span>
-            <kbd className={styles.searchKbd}>⌘K</kbd>
+            <kbd className={styles.searchKbd}>⌘&nbsp;K</kbd>
           </button>
 
           {/* 用户菜单 */}
@@ -187,14 +198,18 @@ export function TopNav() {
             placement="bottomRight"
             trigger={['click']}
           >
-            <div className={styles.userMenu}>
+            <button
+              className={styles.userMenu}
+              aria-label="用户菜单"
+              type="button"
+            >
               <Avatar
                 size={32}
                 src={user?.avatar}
                 icon={!user?.avatar && <UserOutlined />}
                 style={{ backgroundColor: '#ff6b6b' }}
               />
-            </div>
+            </button>
           </Dropdown>
         </div>
       </header>
@@ -209,12 +224,12 @@ export function TopNav() {
         className={styles.searchModal}
       >
         <div className={styles.searchModalContent}>
-          <SearchIcon className={styles.searchModalIcon} />
+          <SearchIcon className={styles.searchModalIcon} aria-hidden="true" />
           <input
+            ref={searchInputRef}
             type="text"
-            placeholder="搜索题目、标签..."
+            placeholder="搜索题目、标签…"
             className={styles.searchModalInput}
-            autoFocus
           />
         </div>
         <div className={styles.searchModalHint}>

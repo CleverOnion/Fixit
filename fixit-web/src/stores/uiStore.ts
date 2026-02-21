@@ -4,6 +4,9 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+// Storage 版本控制
+const STORAGE_VERSION = 1;
+
 interface UIState {
   // 侧边栏状态
   sidebarCollapsed: boolean;
@@ -68,6 +71,7 @@ export const useUIStore = create<UIState>()(
       }),
       {
         name: 'ui-storage',
+        version: STORAGE_VERSION,
         partialize: (state) => ({
           sidebarCollapsed: state.sidebarCollapsed,
           theme: state.theme,

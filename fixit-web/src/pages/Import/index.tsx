@@ -487,19 +487,20 @@ function TagSelector({
   const [suggestedTags, setSuggestedTags] = useState<ReadonlyArray<Tag>>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 搜索匹配
-  useEffect(() => {
+  // 搜索匹配 - 使用 useMemo 避免在 effect 中 setState
+  const suggestedTagsMemo = useMemo(() => {
     if (!search.trim()) {
-      setSuggestedTags([]);
-      return;
+      return [];
     }
     const lower = search.toLowerCase();
-    const matched = allTags.filter(
-      (t) =>
-        t.name.toLowerCase().includes(lower) && !selectedTags.includes(t.id),
-    );
-    setSuggestedTags(matched.slice(0, 5));
+    return allTags
+      .filter((t) => t.name.toLowerCase().includes(lower) && !selectedTags.includes(t.id))
+      .slice(0, 5);
   }, [search, allTags, selectedTags]);
+
+  useEffect(() => {
+    setSuggestedTags(suggestedTagsMemo);
+  }, [suggestedTagsMemo]);
 
   // 键盘事件
   const handleKeyDown = useCallback(
@@ -803,7 +804,7 @@ export default function ImportPage({ mode = 'create' }: ImportPageProps) {
   const [usedSubjects, setUsedSubjects] = useState<ReadonlyArray<string>>([]);
 
   // AI detection state
-  const [aiDetectedSubject, setAiDetectedSubject] = useState<string | null>(null);
+  const [_aiDetectedSubject, setAiDetectedSubject] = useState<string | null>(null);
   const [isAiDetected, setIsAiDetected] = useState(false);
   const [isNewSubject, setIsNewSubject] = useState(false);
 

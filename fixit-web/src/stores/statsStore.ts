@@ -4,6 +4,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Storage 版本控制
+const STORAGE_VERSION = 1;
+
 type PracticeMode = 'ebbinghaus' | 'random';
 
 export interface TodayStats {
@@ -124,6 +127,7 @@ export const useStatsStore = create<StatsState>()(
     }),
     {
       name: 'today-stats-storage',
+      version: STORAGE_VERSION,
     }
   )
 );

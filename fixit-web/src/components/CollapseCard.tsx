@@ -35,33 +35,53 @@ export function CollapseCard({
     const content = contentRef.current;
     if (!content) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     if (expanded) {
       // 展开动画
+      const targetHeight = content.scrollHeight;
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
       content.style.overflow = 'hidden';
 
-      // 强制重绘
-      content.getBoundingClientRect();
-
-      content.style.maxHeight = `${content.scrollHeight}px`;
-      content.style.opacity = '1';
+      // 使用 requestAnimationFrame 避免布局读取
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (prefersReducedMotion) {
+            content.style.maxHeight = `${targetHeight}px`;
+            content.style.opacity = '1';
+            content.style.transition = 'none';
+          } else {
+            content.style.maxHeight = `${targetHeight}px`;
+            content.style.opacity = '1';
+            content.style.transition = 'max-height 120ms ease-out, opacity 120ms ease-out';
+          }
+        });
+      });
     } else {
       // 收起动画
       content.style.maxHeight = `${content.scrollHeight}px`;
       content.style.opacity = '1';
 
-      // 强制重绘
-      content.getBoundingClientRect();
-
-      content.style.maxHeight = '0px';
-      content.style.opacity = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (prefersReducedMotion) {
+            content.style.maxHeight = '0px';
+            content.style.opacity = '0';
+            content.style.transition = 'none';
+          } else {
+            content.style.maxHeight = '0px';
+            content.style.opacity = '0';
+            content.style.transition = 'max-height 120ms ease-out, opacity 120ms ease-out';
+          }
+        });
+      });
     }
 
     // 动画结束后重置状态
     const timer = setTimeout(() => {
       animatingRef.current = false;
-    }, 120);
+    }, prefersReducedMotion ? 0 : 120);
 
     return () => clearTimeout(timer);
   }, [expanded, children]);
@@ -73,13 +93,14 @@ export function CollapseCard({
         onClick={handleToggle}
         type="button"
         aria-expanded={expanded}
+        aria-label={`${expanded ? '收起' : '展开'}${title}`}
       >
         <div className={styles.headerLeft}>
-          {icon && <span className={styles.icon}>{icon}</span>}
+          {icon && <span className={styles.icon} aria-hidden="true">{icon}</span>}
           <span className={styles.title}>{title}</span>
         </div>
         {showExpander && (
-          <span className={`${styles.expander} ${expanded ? styles.expanded : ''}`}>
+          <span className={`${styles.expander} ${expanded ? styles.expanded : ''}`} aria-hidden="true">
             {expanded ? '∧' : '∨'}
           </span>
         )}
@@ -87,10 +108,7 @@ export function CollapseCard({
       <div
         ref={contentRef}
         className={styles.content}
-        style={{
-          opacity: expanded ? 1 : 0,
-          transition: 'max-height 120ms ease-out, opacity 120ms ease-out',
-        }}
+        aria-hidden={!expanded}
       >
         <div className={styles.contentInner}>
           {children}
